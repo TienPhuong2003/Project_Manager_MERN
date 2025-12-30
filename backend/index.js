@@ -3,13 +3,14 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import routes from "./routes/index.js";
 
 dotenv.config();
 
 const app = express();
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    origin: process.env.FRONT_END_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -33,6 +34,8 @@ const PORT = process.env.PORT || 5000;
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to the Task Management API" });
 });
+
+app.use("/api-v1", routes);
 
 // error handling middleware
 app.use((err, req, res, next) => {
