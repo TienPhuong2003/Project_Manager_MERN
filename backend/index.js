@@ -1,11 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import morgan from "morgan";
 import routes from "./routes/index.js";
 
-dotenv.config();
 
 const app = express();
 app.use(

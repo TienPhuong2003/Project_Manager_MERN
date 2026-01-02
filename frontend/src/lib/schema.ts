@@ -30,3 +30,22 @@ export const signUpSchema = z
     path: ["confirmPassword"],
     message: "Mật khẩu xác nhận không khớp",
   });
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
+        "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
+      ),
+    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Mật khẩu xác nhận không khớp",
+  });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Email không hợp lệ"),
+});

@@ -11,4 +11,16 @@ const loginSchema = z.object({
   password: z.string().min(8, "password must be at least 8 characters long"),
 });
 
-export { registerSchema, loginSchema };
+const verifyEmailSchema = z.object({
+  token: z.string().min(1, "token is required"),
+});
+
+const resetPasswordSchema = z.object({
+  newPassword: z.string().min(8, "password must be at least 8 characters long"),
+  confirmPassword: z.string().min(8, "confirm password is required"),
+});
+
+const emailSchema = z.object({
+  email: z.string().email("invalid email address"),
+})
+export { registerSchema, loginSchema, verifyEmailSchema, resetPasswordSchema, emailSchema };

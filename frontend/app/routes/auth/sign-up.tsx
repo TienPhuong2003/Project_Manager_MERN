@@ -20,13 +20,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useSignUpMutation } from "app/hooks/use-auth";
 import { toast } from "sonner";
 
 export type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -42,7 +43,12 @@ const SignUp = () => {
   const handleOnSubmit = (values: SignUpFormData) => {
     mutate(values, {
       onSuccess: () => {
-        toast.success("User registered successfully:");
+        toast.success("Email verification required",{
+          description: "Please check your email to verify your account. If you don't see the email, check your spam folder.",
+        });
+
+        form.reset();
+        navigate("/sign-in");
       },
       onError: (error: any) => {
         const errorMessage = error?.response?.data?.message || "Something went wrong";
