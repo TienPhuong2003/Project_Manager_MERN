@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
 import { useSignUpMutation } from "app/hooks/use-auth";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 export type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -38,20 +40,24 @@ const SignUp = () => {
     },
   });
 
-  const {mutate, isPending} = useSignUpMutation(); 
+  const { mutate, isPending } = useSignUpMutation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleOnSubmit = (values: SignUpFormData) => {
     mutate(values, {
       onSuccess: () => {
-        toast.success("Email verification required",{
-          description: "Please check your email to verify your account. If you don't see the email, check your spam folder.",
+        toast.success("Email verification required", {
+          description:
+            "Please check your email to verify your account. If you don't see the email, check your spam folder.",
         });
 
         form.reset();
         navigate("/sign-in");
       },
       onError: (error: any) => {
-        const errorMessage = error?.response?.data?.message || "Something went wrong";
+        const errorMessage =
+          error?.response?.data?.message || "Something went wrong";
         console.error(error);
         toast.error(errorMessage);
       },
@@ -114,16 +120,30 @@ const SignUp = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="********"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -131,16 +151,32 @@ const SignUp = () => {
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="********"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="********"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <Button type="submit" className="w-full">
                 {isPending ? "Creating Account..." : "Sign Up"}
               </Button>
@@ -151,7 +187,10 @@ const SignUp = () => {
             <div className="justify-center text-center flex">
               <p className="text-sm text-muted-foreground">
                 Already have an account?{"  "}
-                <Link to="/sign-in" className="text-blue-600 hover:underline font-semibold">
+                <Link
+                  to="/sign-in"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
                   Sign In
                 </Link>
               </p>

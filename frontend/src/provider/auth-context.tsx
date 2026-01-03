@@ -27,7 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkAuth = async () => {
       setIsLoading(true);
       const userInfo = localStorage.getItem("user");
-      if (userInfo) {
+      const token = localStorage.getItem("token");
+      if (token && userInfo) {
         setUser(JSON.parse(userInfo));
         setIsAuthenticated(true);
       } else {
@@ -37,8 +38,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
       setIsLoading(false);
-      checkAuth();
     };
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -52,7 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("force-logout", handleLogout);
     };
   }, []);
-
 
   const login = async (data: any) => {
     localStorage.setItem("token", data.token);
