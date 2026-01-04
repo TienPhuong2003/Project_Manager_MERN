@@ -42,11 +42,11 @@ const SignIn = () => {
 
   const handleOnSubmit = (values: SignInFormData) => {
     mutate(values, {
-      onSuccess: (data) => {
+      onSuccess: async(data) => {
         console.log(data);
-        login(data);
+        await login(data);
         toast.success("Log in successful");
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       },
       onError: (error: any) => {
         const errorMessage = error.response?.data?.message || "Something went wrong";

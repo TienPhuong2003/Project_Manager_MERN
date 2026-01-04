@@ -4,19 +4,25 @@ import { Loader } from "@/components/ui/loader";
 import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "app/types";
 import { useState } from "react";
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet,useLoaderData } from "react-router";
+import { CreateWorkspace } from "@/components/workspace/create-workspace";
+import { fetchData } from "@/lib/fetch-util";
+
+export const clientLoader = async () => {
+  try {
+    const response = await fetchData<{ workspaces: Workspace[] }>("/workspaces");
+    return { workspaces: response.workspaces };
+  } catch (error) {
+    console.error(error);
+    return { workspaces: [] };
+  }
+};
+
 
 const DashboardLayout = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { workspaces } = useLoaderData() as { workspaces: Workspace[] };
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null)
-
-  if (isLoading) {
-    return <Loader />;
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/sign-in" />;
-  }
 
   const handleWorkspaceSelected = (workspace: Workspace) => {
     setCurrentWorkspace(workspace);
@@ -27,6 +33,7 @@ const DashboardLayout = () => {
       <SidebarComponent currentWorkspace={currentWorkspace}/>
       <div className="flex flex-1 flex-col h-full">
         <Header
+          workspaces={workspaces}
           onWorkspaceSelected={handleWorkspaceSelected}
           selectedWorkspace={currentWorkspace}
           onCreateWorkspace={() => setIsCreatingWorkspace(true)}
@@ -37,6 +44,10 @@ const DashboardLayout = () => {
           </div>
         </main>
       </div>
+
+      <CreateWorkspace 
+      isCreatingWorkspace={isCreatingWorkspace}
+      setIsCreatingWorkspace={setIsCreatingWorkspace}/>
     </div>
   );
 };

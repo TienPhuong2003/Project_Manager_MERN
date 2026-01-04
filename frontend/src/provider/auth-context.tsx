@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const currentPath = useLocation().pathname;
   const isPublicRoute = publicRoutes.includes(currentPath);
@@ -25,32 +25,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
-      setIsLoading(true);
-      const userInfo = localStorage.getItem("user");
-      const token = localStorage.getItem("token");
-      if (token && userInfo) {
-        setUser(JSON.parse(userInfo));
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        if (!isPublicRoute) {
-          navigate("/sign-in");
+      try {
+        const userInfo = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+
+        if (token && userInfo) {
+          setUser(JSON.parse(userInfo));
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
+      } catch (err) {
+        console.error("Auth hydrate failed", err);
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkAuth();
   }, []);
 
   useEffect(() => {
-    const handleLogout = () => {
-      logout();
-      navigate("/sign-in");
+    const onStorageChange = (event: StorageEvent) => {
+      if (event.key === "token" && event.oldValue && !event.newValue) {
+        logout();
+        navigate("/sign-in", { replace: true });
+      }
     };
 
-    window.addEventListener("force-logout", handleLogout);
+    window.addEventListener("storage", onStorageChange);
     return () => {
-      window.removeEventListener("force-logout", handleLogout);
+      window.removeEventListener("storage", onStorageChange);
     };
   }, []);
 

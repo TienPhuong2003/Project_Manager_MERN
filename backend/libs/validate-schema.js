@@ -1,4 +1,4 @@
-import {z} from "zod";
+import { z } from "zod";
 
 const registerSchema = z.object({
   name: z.string().min(3, "name is required").max(100),
@@ -22,5 +22,18 @@ const resetPasswordSchema = z.object({
 
 const emailSchema = z.object({
   email: z.string().email("invalid email address"),
-})
-export { registerSchema, loginSchema, verifyEmailSchema, resetPasswordSchema, emailSchema };
+});
+
+const workspaceSchema = z.object({
+  name: z.string().min(1, "name is requied"),
+  description: z.string().optional(),
+  color: z.string().min(1, "color is required"),
+});
+export {
+  registerSchema,
+  loginSchema,
+  verifyEmailSchema,
+  resetPasswordSchema,
+  emailSchema,
+  workspaceSchema,
+};

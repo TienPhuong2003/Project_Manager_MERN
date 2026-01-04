@@ -49,3 +49,9 @@ export const resetPasswordSchema = z
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Email không hợp lệ"),
 });
+
+export const workspaceSchema = z.object({
+  name: z.string().min(1, "name must be required"),
+  color: z.string().optional(),
+  description: z.string().optional()
+})
