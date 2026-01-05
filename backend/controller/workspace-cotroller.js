@@ -18,9 +18,7 @@ const createWorkspace = async (req, res) => {
       ],
     });
 
-    res.status(201).json(
-      workspace,
-    );
+    res.status(201).json(workspace);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -33,10 +31,8 @@ const getWorkspaces = async (req, res) => {
   try {
     const workspaces = await Workspace.find({
       "members.user": req.user._id,
-    }).sort({createdAt: -1});
-    return res.status(200).json({
-      workspaces,
-    });
+    }).sort({ createdAt: -1 });
+    return res.status(200).json(workspaces);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -45,4 +41,4 @@ const getWorkspaces = async (req, res) => {
   }
 };
 
-export { createWorkspace,getWorkspaces };
+export { createWorkspace, getWorkspaces };

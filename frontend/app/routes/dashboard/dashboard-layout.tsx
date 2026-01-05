@@ -4,33 +4,42 @@ import { Loader } from "@/components/ui/loader";
 import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "app/types";
 import { useState } from "react";
-import { Navigate, Outlet,useLoaderData } from "react-router";
+import { Navigate, Outlet, useLoaderData } from "react-router";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { fetchData } from "@/lib/fetch-util";
 
 export const clientLoader = async () => {
   try {
-    const response = await fetchData<{ workspaces: Workspace[] }>("/workspaces");
-    return { workspaces: response.workspaces };
+    const [workspaces] = await Promise.all([
+      fetchData("/workspaces"),
+    ]);
+    console.log(workspaces);
+    return { workspaces };
   } catch (error) {
     console.error(error);
     return { workspaces: [] };
   }
 };
 
-
 const DashboardLayout = () => {
-  const { workspaces } = useLoaderData() as { workspaces: Workspace[] };
+  const { workspaces: loaderWorkspaces } = useLoaderData() as {
+    workspaces: Workspace[];
+  };
+
+  const [workspaces, setWorkspaces] = useState<Workspace[]>(loaderWorkspaces);
+
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
-  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null)
+  const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
+    null
+  );
 
   const handleWorkspaceSelected = (workspace: Workspace) => {
     setCurrentWorkspace(workspace);
-  }
+  };
 
   return (
     <div className="flex h-screen w-full">
-      <SidebarComponent currentWorkspace={currentWorkspace}/>
+      <SidebarComponent currentWorkspace={currentWorkspace} />
       <div className="flex flex-1 flex-col h-full">
         <Header
           workspaces={workspaces}
@@ -45,9 +54,10 @@ const DashboardLayout = () => {
         </main>
       </div>
 
-      <CreateWorkspace 
-      isCreatingWorkspace={isCreatingWorkspace}
-      setIsCreatingWorkspace={setIsCreatingWorkspace}/>
+      <CreateWorkspace
+        isCreatingWorkspace={isCreatingWorkspace}
+        setIsCreatingWorkspace={setIsCreatingWorkspace}
+      />
     </div>
   );
 };

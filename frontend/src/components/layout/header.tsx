@@ -14,9 +14,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Link } from "react-router";
 import { WorkspaceAvatar } from "../workspace/workspace-avatar";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
-  workspaces: Workspace[]
+  workspaces: Workspace[];
   onWorkspaceSelected: (workspace: Workspace) => void;
   selectedWorkspace: Workspace | null;
   onCreateWorkspace: () => void;
@@ -28,25 +29,28 @@ export const Header = ({
   onCreateWorkspace,
 }: HeaderProps) => {
   const { user, logout } = useAuth();
-  
+
   return (
     <div className="bg-background sticky top-0 z-40 border-b">
       <div className="flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button variant={"outline"}>
+            <Button variant="outline" className="flex items-center gap-2 px-3">
               {selectedWorkspace ? (
                 <>
-                  {selectedWorkspace.color && (
-                    <WorkspaceAvatar
-                      color={selectedWorkspace.color}
-                      name={selectedWorkspace.name}
-                    />
-                  )}
-                  <span className="font-medium">{selectedWorkspace?.name}</span>
+                  <WorkspaceAvatar
+                    color={selectedWorkspace.color}
+                    name={selectedWorkspace.name}
+                    size="md"
+                  />
+                  <span className="font-semibold truncate max-w-[140px]">
+                    {selectedWorkspace.name}
+                  </span>
                 </>
               ) : (
-                <span className="font-medium">Select Workspace</span>
+                <span className="font-medium">
+                  Select Workspace
+                </span>
               )}
             </Button>
           </DropdownMenuTrigger>
@@ -55,17 +59,39 @@ export const Header = ({
             <DropdownMenuLabel>Workspace</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {workspaces.map((ws) => (
-                <DropdownMenuItem
-                  key={ws._id}
-                  onClick={() => onWorkspaceSelected(ws)}
-                >
-                  {ws.color && (
-                    <WorkspaceAvatar color={ws.color} name={ws.name} />
-                  )}
-                  <span className="ml-2">{ws.name}</span>
-                </DropdownMenuItem>
-              ))}
+              {workspaces.map((ws) => {
+                const isSelected = selectedWorkspace?._id === ws._id;
+
+                return (
+                  <DropdownMenuItem
+                    key={ws._id}
+                    onClick={() => onWorkspaceSelected(ws)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer",
+                      "transition-colors",
+                      isSelected
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    <WorkspaceAvatar
+                      color={ws.color}
+                      name={ws.name}
+                      size="sm"
+                    />
+
+                    <span className="flex-1 font-medium truncate">
+                      {ws.name}
+                    </span>
+
+                    {isSelected && (
+                      <span className="text-xs text-primary font-semibold">
+                        ✓
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuGroup>
 
             <DropdownMenuGroup>

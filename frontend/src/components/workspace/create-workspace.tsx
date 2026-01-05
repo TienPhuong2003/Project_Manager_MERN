@@ -24,6 +24,7 @@ import { Button } from "../ui/button";
 import { useCreateWorkspace } from "app/hooks/use-workspace";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import type { Workspace } from "app/types";
 
 interface CreateWorkspaceProps {
   isCreatingWorkspace: boolean;
@@ -63,6 +64,7 @@ export const CreateWorkspace = ({
         form.reset();
         setIsCreatingWorkspace(false);
         toast.success("Workspace created successfully");
+        console.log(data);
         navigate(`/workspaces/${data._id}`);
       },
       onError: (error: any) => {
