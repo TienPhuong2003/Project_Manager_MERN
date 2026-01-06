@@ -24,7 +24,6 @@ import { Button } from "../ui/button";
 import { useCreateWorkspace } from "app/hooks/use-workspace";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-import type { Workspace } from "app/types";
 
 interface CreateWorkspaceProps {
   isCreatingWorkspace: boolean;

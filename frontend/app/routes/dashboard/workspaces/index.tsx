@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGetWorkspacesQuery } from "../../../hooks/use-workspace";
 import type { Workspace } from "app/types";
-import { Loader, PlusCircle, Users } from "lucide-react";
+import { PlusCircle, Users } from "lucide-react";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { Button } from "@/components/ui/button";
 import { NoDataFound } from "@/components/no-data-found";
@@ -15,16 +15,26 @@ import {
 } from "@/components/ui/card";
 import { WorkspaceAvatar } from "@/components/workspace/workspace-avatar";
 import { format } from "date-fns";
-
+import { Loader } from "@/components/ui/loader";
 const Workspaces = () => {
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
-  const { data: workspaces, isLoading } = useGetWorkspacesQuery() as {
-    data: Workspace[];
-    isLoading: boolean;
-  };
+  const { data, isLoading, isError } = useGetWorkspacesQuery();
+  const workspaces: Workspace[] = Array.isArray(data) ? data : [];
+
   if (isLoading) {
     return <Loader />;
   }
+
+  if (isError) {
+  return (
+    <NoDataFound
+      title="Something went wrong"
+      description="We couldn't load your workspaces. Please try again later."
+      buttonText="Retry"
+      buttonAction={() => window.location.reload()}
+    />
+  );
+}
   return (
     <>
       <div className="space-y-8">
@@ -94,7 +104,9 @@ const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
               </h3>
 
               <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
-                <span>{format(workspace.createdAt, "MMM dd, yyyy h:mm a")}</span>
+                <span>
+                  {format(workspace.createdAt, "MMM dd, yyyy h:mm a")}
+                </span>
 
                 <span className="flex items-center gap-1">
                   <Users className="size-3.5" />
@@ -104,7 +116,7 @@ const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
             </div>
           </div>
 
-            {/* DESCRIPTION */}
+          {/* DESCRIPTION */}
           <p className="text-sm text-muted-foreground leading-snug">
             {workspace.description || "No description"}
           </p>

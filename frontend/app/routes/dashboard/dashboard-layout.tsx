@@ -1,10 +1,8 @@
 import { Header } from "@/components/layout/header";
 import { SidebarComponent } from "@/components/layout/sidebar";
-import { Loader } from "@/components/ui/loader";
-import { useAuth } from "@/provider/auth-context";
 import type { Workspace } from "app/types";
 import { useState } from "react";
-import { Navigate, Outlet, useLoaderData } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { fetchData } from "@/lib/fetch-util";
 
@@ -13,7 +11,6 @@ export const clientLoader = async () => {
     const [workspaces] = await Promise.all([
       fetchData("/workspaces"),
     ]);
-    console.log(workspaces);
     return { workspaces };
   } catch (error) {
     console.error(error);

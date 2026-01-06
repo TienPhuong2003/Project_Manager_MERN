@@ -1,3 +1,4 @@
+import { ProjectStatus } from "app/types";
 import { z } from "zod";
 
 export const signInSchema = z.object({
@@ -53,5 +54,20 @@ export const forgotPasswordSchema = z.object({
 export const workspaceSchema = z.object({
   name: z.string().min(1, "name must be required"),
   color: z.string().optional(),
-  description: z.string().optional()
-})
+  description: z.string().optional(),
+});
+
+export const projectSchema = z.object({
+  title: z.string().min(1, "title must be required"),
+  description: z.string().optional(),
+  status: z.nativeEnum(ProjectStatus),
+  startDate: z.string().min(1, "startDate must be required"),
+  dueDate: z.string().min(1, "dueDate must be required"),
+  members: z.array(
+    z.object({
+      user: z.string(),
+      role: z.enum(["admin", "member", "viewer", " owner"]),
+    })
+  ).optional(),
+  tags: z.string().optional(),
+});

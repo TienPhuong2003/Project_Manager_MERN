@@ -22,3 +22,73 @@ export interface Workspace {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type TaskStatus = "To Do" | "In Progress" | "Done";
+export type TaskPriority = "High" | "Medium" | "Low";
+
+export interface Subtask {
+    _id: string;
+    title: string;
+    completed: boolean;
+    createdAt: Date;
+}
+export interface Attachment {
+    _id: string;
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+    uploadedBy: User;
+    uploadedAt: Date;
+}
+export interface Task {
+    _id: string;
+    title: string;
+    description?: string;
+    status: TaskStatus;
+    project: Project;
+    createdAt: Date;
+    updatedAt: Date;
+    isArchived: boolean;
+    dueDate: Date;
+    priority: "low" | "medium" | "high";
+    assignees: User[];
+    createdBy: User;
+    subtasks? : Subtask[];
+    watchers? : User[];
+    attachments? : Attachment[];
+}
+
+export enum ProjectStatus {
+    PLANNING = "planning",
+    IN_PROGRESS = "In Progress",
+    COMPLETED = "Completed",
+    ON_HOLD = "On Hold",
+    CANCELLED = "Cancelled",
+}
+export interface Project {
+    _id: string;
+    title: string;
+    description?: string;
+    status: ProjectStatus;
+    workspace: Workspace;
+    startDate: Date;
+    endDate: Date;
+    tasks: Task[];
+    members: {
+        user: User;
+        role: "manager" | "contributor" | "viewer";
+        joinedAt: Date;
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
+    isArchived: boolean;
+}
+
+
+export interface Member {
+    _id: string;
+    user: User;
+    role: "admin" | "member" | "viewer" | "owner";
+    joinedAt: Date;
+}
