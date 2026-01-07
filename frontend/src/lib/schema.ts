@@ -61,12 +61,12 @@ export const projectSchema = z.object({
   title: z.string().min(1, "title must be required"),
   description: z.string().optional(),
   status: z.nativeEnum(ProjectStatus),
-  startDate: z.string().min(1, "startDate must be required"),
-  dueDate: z.string().min(1, "dueDate must be required"),
+  startDate: z.string().min(1, "start Date must be required"),
+  dueDate: z.string().min(1, "due Date must be required"),
   members: z.array(
     z.object({
       user: z.string(),
-      role: z.enum(["admin", "member", "viewer", " owner"]),
+      role: z.enum(["manager","contributor","viewer"]),
     })
   ).optional(),
   tags: z.string().optional(),

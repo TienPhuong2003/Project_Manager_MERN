@@ -35,6 +35,7 @@ const Workspaces = () => {
     />
   );
 }
+   
   return (
     <>
       <div className="space-y-8">
@@ -72,8 +73,9 @@ const Workspaces = () => {
 };
 
 const WorkspaceCard = ({ workspace }: { workspace: Workspace }) => {
+
   return (
-    <Link to={`/workspaces/${workspace._id}`} className="group">
+    <Link to={`/workspaces/${workspace._id}`} className="group" >
       <Card
         className="
           relative overflow-hidden

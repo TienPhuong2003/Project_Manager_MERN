@@ -39,7 +39,7 @@ const workspaceModel = new Schema(
           type: Date,
           default: Date.now,
         },
-        projects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+        projects: [{ type: Schema.Types.ObjectId, ref: "Project", default: []}],
       },
     ],
   },

@@ -60,7 +60,7 @@ export interface Task {
 }
 
 export enum ProjectStatus {
-    PLANNING = "planning",
+    PLANNING = "Planning",
     IN_PROGRESS = "In Progress",
     COMPLETED = "Completed",
     ON_HOLD = "On Hold",
@@ -73,7 +73,7 @@ export interface Project {
     status: ProjectStatus;
     workspace: Workspace;
     startDate: Date;
-    endDate: Date;
+    dueDate: Date;
     tasks: Task[];
     members: {
         user: User;

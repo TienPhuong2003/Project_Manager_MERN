@@ -25,10 +25,30 @@ const emailSchema = z.object({
 });
 
 const workspaceSchema = z.object({
-  name: z.string().min(1, "name is requied"),
+  name: z.string().min(1, "name is required"),
   description: z.string().optional(),
   color: z.string().min(1, "color is required"),
 });
+
+const projectSchema = z.object({
+  title: z.string().min(1, "title is required"),
+  description: z.string().optional(),
+  status: z.enum([
+    "Planning",
+    "In Progress",
+    "On Hold",
+    "Completed",
+    "Cancelled"
+  ]),
+  startDate: z.string(),
+  dueDate: z.string(),
+  tags: z.string().optional(),
+  members: z.array(z.object({
+    user: z.string(),
+    role: z.enum(["manager", "contributor", "viewer"]),
+  })).optional()
+});
+
 export {
   registerSchema,
   loginSchema,
@@ -36,4 +56,5 @@ export {
   resetPasswordSchema,
   emailSchema,
   workspaceSchema,
+  projectSchema
 };

@@ -7,7 +7,7 @@ import {
   getWorkspaces,
   getWorkspaceDetails,
   getWorkspaceProjects,
-} from "../controller/workspace-cotroller.js";
+} from "../controller/workspace-controller.js";
 const router = express.Router();
 
 router.post(
