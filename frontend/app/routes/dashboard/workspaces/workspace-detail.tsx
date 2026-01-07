@@ -4,8 +4,8 @@ import { useGetWorkspaceById } from "../../../hooks/use-workspace";
 import type { Workspace, Project } from "app/types";
 import { Loader } from "@/components/ui/loader";
 import { WorkspaceHeader } from "@/components/workspace/workspace-header";
-import { ProjectList } from "../../../../src/components/projects/project-list";
-import { CreateProjectDialog } from "../../../../src/components/projects/create-project";
+import { ProjectList } from "../../../../src/components/project/project-list";
+import { CreateProjectDialog } from "../../../../src/components/project/create-project";
 const WorkspaceDetail = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const [isCreateProject, setIsCreateProject] = useState(false);
@@ -22,6 +22,7 @@ const WorkspaceDetail = () => {
     };
     isLoading: boolean;
   };
+
   if (isLoading) {
     return (
         <div>
@@ -29,7 +30,6 @@ const WorkspaceDetail = () => {
         </div>
     );
   }
-  console.log(data.projects);
   
   return (
     <div className="space-y-8">

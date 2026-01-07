@@ -95,9 +95,9 @@ export const CreateProjectDialog = ({
           handleClose(false);
         },
         onError: (error: any) => {
-          const errorMessage = error.response.data.message;
-          toast.error(errorMessage);
-          console.log(error);
+          const message =
+            error?.response?.data?.message || "Something went wrong";
+          toast.error(message);
         },
       }
     );
@@ -301,7 +301,13 @@ export const CreateProjectDialog = ({
                                           field.onChange(
                                             selectedMember.map((m) =>
                                               m.user === member.user._id
-                                                ? { ...m, role: role as "contributor" | "manager" | "viewer" }
+                                                ? {
+                                                    ...m,
+                                                    role: role as
+                                                      | "contributor"
+                                                      | "manager"
+                                                      | "viewer",
+                                                  }
                                                 : m
                                             )
                                           );

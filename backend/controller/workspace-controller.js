@@ -80,8 +80,6 @@ const getWorkspaceProjects = async (req, res) => {
     .sort({
       createdAt: -1,
     });
-    console.log(projects);
-    
     res.status(200).json({projects, workspace});
   } catch (error) {
     console.log(error);

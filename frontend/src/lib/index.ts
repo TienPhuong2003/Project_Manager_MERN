@@ -1,4 +1,4 @@
-import type { ProjectStatus } from "app/types";
+import type { ProjectStatus, TaskStatus } from "app/types";
 
 export const publicRoutes = [
   "/sign-in",
@@ -9,24 +9,26 @@ export const publicRoutes = [
   "/",
 ];
 
-export const getProjectStatusColor = (status: ProjectStatus) => {
+export const getProjectStatusColor = (status: string) => {
   switch (status) {
     case "Planning":
-      return "bg-blue-100 text-blue-700 border border-blue-200";
-
+      return "bg-blue-100 text-blue-700";
     case "In Progress":
-      return "bg-yellow-100 text-yellow-700 border border-yellow-200";
-
+      return "bg-yellow-100 text-yellow-700";
     case "Completed":
-      return "bg-green-100 text-green-700 border border-green-200";
-
+      return "bg-green-100 text-green-700";
     case "On Hold":
-      return "bg-purple-100 text-purple-700 border border-purple-200";
-
+      return "bg-gray-200 text-gray-700";
     case "Cancelled":
-      return "bg-red-100 text-red-700 border border-red-200";
-
+      return "bg-red-100 text-red-700";
     default:
-      return "bg-gray-100 text-gray-700 border border-gray-200";
+      return "bg-muted text-muted-foreground";
   }
 };
+
+export const getProjectProgress = (tasks: {status: TaskStatus}[]) => {
+  const totalTask = tasks.length;
+  const completedTask = tasks.filter((task) => task?.status === "Done").length;
+  const progress = totalTask > 0 ? Math.round((completedTask / totalTask)*100) : 0;
+  return progress
+}
