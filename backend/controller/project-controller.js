@@ -50,33 +50,6 @@ const createProject = async (req, res) => {
   }
 };
 
-const getProjectDetail = async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const project = await Project.findById(projectId);
-    if (!project) {
-      return res.status(404).json({
-        message: "project not found",
-      });
-    }
-
-    const isMember = project.members.some(
-      (member) => member.user.toString() === req.user._id.toString()
-    );
-
-    if (!isMember) {
-      return res.status(403).json({
-        message: "you are no longer the member of this project",
-      });
-    }
-    res.status(200).json(project);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-};
 
 const getProjectTasks = async (req, res) => {
   try {
@@ -89,7 +62,7 @@ const getProjectTasks = async (req, res) => {
       });
     }
     const isMember = project.members.some(
-      (member) => member.user.toString() === req.user._id.toString()
+      (member) => member.user._id.toString() === req.user._id.toString()
     );
 
     if (!isMember) {
@@ -113,4 +86,4 @@ const getProjectTasks = async (req, res) => {
   }
 };
 
-export { createProject, getProjectTasks, getProjectDetail };
+export { createProject, getProjectTasks };

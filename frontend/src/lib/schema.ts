@@ -81,8 +81,8 @@ export const projectSchema = z.object({
 export const createtaskSchema = z.object({
   title: z.string().min(1, "Task title must be required"),
   description: z.string().optional(),
-  status: z.enum(["To Do", "In Progress", "Done"]),
+  status: z.enum(["To Do", "In Progress", "Completed","Cancelled"]),
   priority: z.enum(["Low", "Medium", "High"]),
   dueDate: z.string().min(1, "Due Date must be required"),
-  asignees: z.array(z.string()).min(1,"At least one asignee is required")
+  assignees: z.array(z.string()).min(1,"At least one asignee is required")
 });

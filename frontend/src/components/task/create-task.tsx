@@ -36,6 +36,13 @@ import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "../ui/command";
+import { Check } from "lucide-react";
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
@@ -60,13 +67,14 @@ export const CreateTaskDialog = ({
       status: "To Do",
       priority: "Low",
       dueDate: "",
-      asignees: [],
+      assignees: [],
     },
   });
 
   const { mutate, isPending } = useCreateTask();
-  const [openDueDate,setOpenDueDate] = useState(false)
+  const [openDueDate, setOpenDueDate] = useState(false);
   const onSubmit = (values: CreateTaskFormData) => {
+    console.log("FORM VALUES:", values);
     mutate(
       { projectId, taskData: values },
       {
@@ -135,14 +143,15 @@ export const CreateTaskDialog = ({
                     <FormLabel>Status</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="To Do">To Do</SelectItem>
                         <SelectItem value="In Progress">In Progress</SelectItem>
-                        <SelectItem value="Done">Done</SelectItem>
+                        <SelectItem value="Completed">Completed</SelectItem>
+                        <SelectItem value="Cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -158,7 +167,7 @@ export const CreateTaskDialog = ({
                     <FormLabel>Priority</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                       </FormControl>
@@ -230,6 +239,110 @@ export const CreateTaskDialog = ({
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <FormField
+              control={form.control}
+              name="assignees"
+              render={({ field }) => {
+                const selectedIds = field.value || [];
+
+                return (
+                  <FormItem>
+                    <FormLabel>Assignees</FormLabel>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full min-h-11 justify-start gap-2 flex-wrap"
+                          >
+                            {selectedIds.length === 0 ? (
+                              <span className="text-muted-foreground">
+                                Select assignees
+                              </span>
+                            ) : (
+                              <>
+                                {selectedIds.slice(0, 3).map((id) => {
+                                  const member = projectMembers.find(
+                                    (m) => m.user._id === id
+                                  );
+
+                                  return (
+                                    <span
+                                      key={id}
+                                      className="rounded bg-muted px-2 py-0.5 text-sm truncate max-w-[120px]"
+                                    >
+                                      {member?.user.name}
+                                    </span>
+                                  );
+                                })}
+
+                                {selectedIds.length > 3 && (
+                                  <span className="text-sm text-muted-foreground">
+                                    +{selectedIds.length - 3}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+
+                      <PopoverContent
+                        align="start"
+                        className="w-[--radix-popover-trigger-width] p-0"
+                      >
+                        <Command>
+                          <CommandEmpty>No members found.</CommandEmpty>
+
+                          <CommandGroup className="max-h-60 overflow-y-auto">
+                            {projectMembers.map((member) => {
+                              const userId = member.user._id;
+                              const isSelected = selectedIds.includes(userId);
+
+                              return (
+                                <CommandItem
+                                  key={userId}
+                                  onSelect={() => {
+                                    if (isSelected) {
+                                      field.onChange(
+                                        selectedIds.filter(
+                                          (id) => id !== userId
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([...selectedIds, userId]);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "min-h-11 px-3 flex items-center gap-3 cursor-pointer",
+                                    isSelected && "bg-accent"
+                                  )}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "h-4 w-4 shrink-0",
+                                      isSelected ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <span className="text-sm truncate">
+                                    {member.user.name}
+                                  </span>
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* Footer */}

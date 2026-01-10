@@ -40,14 +40,29 @@ const projectSchema = z.object({
     "Completed",
     "Cancelled"
   ]),
-  startDate: z.string(),
-  dueDate: z.string(),
+  startDate: z.string().min(1, "start date is required"),
+  dueDate: z.string().min(1, "due date is required"),
   tags: z.string().optional(),
   members: z.array(z.object({
     user: z.string(),
     role: z.enum(["manager", "contributor", "viewer"]),
   })).optional()
 });
+
+const taskSchema =z.object({
+  title: z.string().min(1, "title is required"),
+  description: z.string().optional(),
+  status: z.enum([
+    "To Do",
+    "In Progress",
+    "Completed",
+    "Cancelled"
+  ]),
+  priority: z.enum(["Low","Medium","High"]),
+  dueDate: z.string().min(1, "due date is required"),
+  assignees: z.array(z.string()).min(1,"At least one asignee is required")
+})
+
 
 export {
   registerSchema,
@@ -56,5 +71,6 @@ export {
   resetPasswordSchema,
   emailSchema,
   workspaceSchema,
-  projectSchema
+  projectSchema,
+  taskSchema
 };

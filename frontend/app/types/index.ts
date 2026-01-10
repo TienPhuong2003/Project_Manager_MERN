@@ -23,7 +23,7 @@ export interface Workspace {
     updatedAt: Date;
 }
 
-export type TaskStatus = "To Do" | "In Progress" | "Done";
+export type TaskStatus = "To Do" | "In Progress" | "Completed" | "Cancelled";
 export type TaskPriority = "High" | "Medium" | "Low";
 export enum ProjectMemberRole {
     MANAGER = "manager",
