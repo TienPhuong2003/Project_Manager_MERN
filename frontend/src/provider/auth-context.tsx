@@ -1,4 +1,4 @@
-import { createContext, use, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "../../app/types";
 import { queryClient } from "./react-query-provider";
 import { useLocation, useNavigate } from "react-router";

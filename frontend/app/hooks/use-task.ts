@@ -19,3 +19,10 @@ export const useCreateTask = () => {
         }
     })
 }
+
+export const useTaskById = (taskId: string) => {
+    return useQuery({
+        queryKey: ["task", taskId],
+        queryFn: () => fetchData(`/tasks/${taskId}`),
+    })
+}
