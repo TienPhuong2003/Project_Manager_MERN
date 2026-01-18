@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import { CreateWorkspace } from "@/components/workspace/create-workspace";
 import { fetchData } from "@/lib/fetch-util";
-
 export const clientLoader = async () => {
   try {
     const [workspaces] = await Promise.all([

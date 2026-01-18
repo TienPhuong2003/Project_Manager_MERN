@@ -1,4 +1,4 @@
-import { createtaskSchema } from "@/lib/schema";
+import { createTaskSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateTask } from "app/hooks/use-task";
 import type { ProjectMemberRole, User } from "app/types";
@@ -51,7 +51,7 @@ interface CreateTaskDialogProps {
   projectMembers: { user: User; role: ProjectMemberRole }[];
 }
 
-export type CreateTaskFormData = z.infer<typeof createtaskSchema>;
+export type CreateTaskFormData = z.infer<typeof createTaskSchema>;
 
 export const CreateTaskDialog = ({
   isOpen,
@@ -60,7 +60,7 @@ export const CreateTaskDialog = ({
   projectMembers,
 }: CreateTaskDialogProps) => {
   const form = useForm<CreateTaskFormData>({
-    resolver: zodResolver(createtaskSchema),
+    resolver: zodResolver(createTaskSchema),
     defaultValues: {
       title: "",
       description: "",

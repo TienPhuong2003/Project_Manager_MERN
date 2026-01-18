@@ -11,7 +11,7 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONT_END_URL || "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );

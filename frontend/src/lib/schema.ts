@@ -78,7 +78,7 @@ export const projectSchema = z.object({
   tags: z.string().optional(),
 });
 
-export const createtaskSchema = z.object({
+export const createTaskSchema = z.object({
   title: z.string().min(1, "Task title must be required"),
   description: z.string().optional(),
   status: z.enum(["To Do", "In Progress", "Completed","Cancelled"]),
