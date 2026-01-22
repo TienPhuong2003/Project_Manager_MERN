@@ -1,4 +1,5 @@
 import { recordActivity } from "../libs/index.js";
+import ActivityLog from "../models/activity.js";
 import Project from "../models/project.js";
 import Task from "../models/task.js";
 import Workspace from "../models/workspace.js";
@@ -130,7 +131,7 @@ const updateTask = async (req, res) => {
     // --- PRIORITY ---
     if (typeof priority === "string" && priority !== task.priority) {
       activities.push(
-        `changed status from "${task.priority}" to "${priority}"`,
+        `changed priority from "${task.priority}" to "${priority}"`,
       );
       task.priority = priority;
     }
@@ -233,7 +234,7 @@ const addSubTask = async (req, res) => {
     await task.save();
 
     await recordActivity(req.user._id, "created_subtask", taskId, "Task", {
-      description: `created subtask ${title}`,
+      description: `created sub task "${title}"`,
     });
     res.status(200).json(task);
   } catch (error) {
@@ -247,6 +248,37 @@ const addSubTask = async (req, res) => {
 const updateSubTask = async (req, res) => {
   try {
     const { taskId, subTaskId } = req.params;
+    const { title } = req.body;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const subtask = task.subTasks.id(subTaskId);
+    if (!subtask) {
+      return res.status(404).json({ message: "Sub Task not found" });
+    }
+    const oldTitle = subtask.title;
+    subtask.title = title;
+    await task.save();
+
+    await recordActivity(req.user._id, "updated_subtask", taskId, "Task", {
+      description: `updated sub task from"${oldTitle}" to "${title}"`,
+    });
+
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const completedSubTask = async (req, res) => {
+  try {
+    const { taskId, subTaskId } = req.params;
     const { completed } = req.body;
 
     const task = await Task.findById(taskId);
@@ -258,13 +290,16 @@ const updateSubTask = async (req, res) => {
     if (!subtask) {
       return res.status(404).json({ message: "Sub Task not found" });
     }
-    subtask.completed = completed
+    subtask.completed = completed;
     await task.save();
 
-    await recordActivity(req.user._id, "updated_subtask", taskId, "Task", {
-      description: `updated subtask ${subtask.title}`,
+    await recordActivity(req.user._id, "completed_subtask", taskId, "Task", {
+      completed,
+      description: completed
+        ? `completed sub task "${subtask.title}"`
+        : `incomplete sub task "${subtask.title}"`,
     });
-    
+
     res.status(200).json(task);
   } catch (error) {
     console.error(error);
@@ -274,5 +309,29 @@ const updateSubTask = async (req, res) => {
   }
 };
 
+const getTaskActivity = async (req, res) => {
+  try {
+    const { resourceId } = req.params;
+    const activity = await ActivityLog.find({ resourceId })
+      .populate("user", "name profilePicture")
+      .sort({ createdAt: -1 });
 
-export { createTask, getTaskById, updateTask, updateTaskAssignees, addSubTask, updateSubTask };
+    res.status(200).json(activity);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export {
+  createTask,
+  getTaskById,
+  updateTask,
+  updateTaskAssignees,
+  addSubTask,
+  updateSubTask,
+  getTaskActivity,
+  completedSubTask,
+};

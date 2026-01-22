@@ -10,10 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CreateTaskDialog } from "@/components/task/create-task";
 import { Plus } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { NoDataFound } from "@/components/no-data-found";
 import { Badge } from "@/components/ui/badge";
-import { TaskCard } from "@/components/task/task-card";
-import { TaskListItem } from "@/components/task/task-list-item";
 import { TaskColumn } from "@/components/task/task-column";
 
 const ProjectDetail = () => {
@@ -61,25 +58,19 @@ const ProjectDetail = () => {
       {/* ===== Header ===== */}
       <div className="space-y-4">
         {/* Title */}
-        <div className="flex items-center gap-2">
-          <BackButton />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {project.title}
-          </h1>
-        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <BackButton />
 
-        {/* Description */}
-        {project.description && (
-          <div className="max-w-2xl border-l-2 border-muted pl-3">
-            <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
-              {project.description}
-            </p>
+            <h1
+              className="truncate text-2xl font-semibold tracking-tight"
+              title={project.title}
+            >
+              {project.title}
+            </h1>
           </div>
-        )}
 
-        {/* Meta row */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-3 shrink-0">
             <Badge variant="secondary">{project.status}</Badge>
 
             <Badge variant="outline">{tasks.length} tasks</Badge>
@@ -90,26 +81,32 @@ const ProjectDetail = () => {
               </Badge>
             )}
 
-            <div className="ml-2 flex items-center gap-2">
-              <Progress
-                value={projectProgress}
-                className="h-2 w-16 opacity-80"
-              />
-              <span className="text-xs font-medium text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Progress value={projectProgress} className="h-2 w-20" />
+              <span className="text-xs text-muted-foreground">
                 {projectProgress}%
               </span>
             </div>
           </div>
 
-          <Button
-            onClick={() => setIsCreateTask(true)}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Add task
-          </Button>
+          <div className="shrink-0 ml-auto">
+            <Button size="sm" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add task
+            </Button>
+          </div>
         </div>
+        {/* Description */}
+        {project.description && (
+          <div className="relative max-w-2xl pl-4">
+            <span className="absolute left-0 top-0 h-full w-1 rounded-full bg-primary" />
+
+            <p className="text-base leading-relaxed text-muted-foreground line-clamp-3">
+              {project.description}
+            </p>
+          </div>
+        )}
+
       </div>
 
       {/* ===== Task section ===== */}

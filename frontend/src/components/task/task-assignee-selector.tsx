@@ -33,7 +33,7 @@ export const TaskAssigneesSelector = ({
   const { mutate, isPending } = useUpdateTaskAssigneesMutation();
 
   const [selectedIds, setSelectedIds] = useState<string[]>(
-    assignees.map((u) => u._id)
+    assignees.map((u) => u._id),
   );
   const [openPop, setOpenPop] = useState(false);
 
@@ -50,14 +50,14 @@ export const TaskAssigneesSelector = ({
       projectMembers
         .filter((m) => selectedIds.includes(m.user._id))
         .map((m) => m.user),
-    [projectMembers, selectedIds]
+    [projectMembers, selectedIds],
   );
 
   const toggleAssign = (userId: string) => {
     setSelectedIds((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 
@@ -75,6 +75,10 @@ export const TaskAssigneesSelector = ({
   };
 
   const handleConfirm = () => {
+    if (selectedIds.length === 0) {
+      toast.error("Task must have at least one assignee");
+      return;
+    }
     const initial = initialIdsRef.current;
 
     const hasChanged =
@@ -101,7 +105,7 @@ export const TaskAssigneesSelector = ({
           setSelectedIds(initialIdsRef.current);
           toast.error("Failed to update assignees");
         },
-      }
+      },
     );
   };
 
@@ -128,7 +132,7 @@ export const TaskAssigneesSelector = ({
               disabled={isPending}
             >
               <UserPlus className="size-4" />
-              Add Member
+              Members
             </Button>
           </PopoverTrigger>
 
@@ -147,7 +151,7 @@ export const TaskAssigneesSelector = ({
                       onSelect={() => toggleAssign(user._id)}
                       className={cn(
                         "flex items-center gap-2",
-                        selected && "bg-accent/50"
+                        selected && "bg-accent/50",
                       )}
                     >
                       <Avatar className="size-6">
@@ -160,7 +164,7 @@ export const TaskAssigneesSelector = ({
                       <Check
                         className={cn(
                           "size-4 transition",
-                          selected ? "opacity-100" : "opacity-0"
+                          selected ? "opacity-100" : "opacity-0",
                         )}
                       />
                     </CommandItem>

@@ -73,9 +73,30 @@ export const useUpdateSubTaskMutation = () => {
     mutationFn: (data: {
       taskId: string;
       subTaskId: string;
-      completed: boolean;
+      title: string;
     }) =>
       updateData(`/tasks/${data.taskId}/update-subtask/${data.subTaskId}`, {
+        title: data.title,
+      }),
+
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task", data._id],
+      });
+    },
+  });
+};
+
+export const useCompleteSubTaskMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      taskId: string;
+      subTaskId: string;
+      completed: boolean;
+    }) =>
+      updateData(`/tasks/${data.taskId}/complete-subtask/${data.subTaskId}`, {
         completed: data.completed,
       }),
 

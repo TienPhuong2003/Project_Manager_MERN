@@ -8,7 +8,9 @@ import {
   updateTask,
   updateTaskAssignees,
   addSubTask,
-  updateSubTask
+  updateSubTask,
+  getTaskActivity,
+  completedSubTask
 } from "../controller/task-controller.js";
 import { z } from "zod";
 
@@ -84,9 +86,31 @@ router.put(
   authMiddleware,
   validateRequest({
     params: z.object({ taskId: z.string(), subTaskId: z.string() }),
-    body: z.object({ completed: z.boolean() }),
+    body: z.object({ title: z.string() }),
   }),
   updateSubTask
 );
+
+router.put(
+  "/:taskId/complete-subtask/:subTaskId",
+  authMiddleware,
+  validateRequest({
+    params: z.object({ taskId: z.string(), subTaskId: z.string() }),
+    body: z.object({ completed: z.boolean() }),
+  }),
+  completedSubTask
+);
+
+router.get(
+  "/:resourceId/activity",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      resourceId: z.string(),
+    }),
+  }),
+  getTaskActivity
+);
+
 
 export default router;

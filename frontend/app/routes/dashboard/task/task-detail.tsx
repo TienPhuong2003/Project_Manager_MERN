@@ -14,6 +14,8 @@ import { TaskDescription } from "@/components/task/task-description";
 import { TaskAssigneesSelector } from "@/components/task/task-assignee-selector";
 import { TaskPrioritySelector } from "@/components/task/task-priority-selector";
 import { SubTaskDetail } from "@/components/task/sub-task-detail";
+import { Watchers } from "@/components/task/task-watcher-selector";
+import { TaskActivity } from "@/components/task/task-activity";
 
 const TaskDetail = () => {
   const { user } = useAuth();
@@ -42,7 +44,7 @@ const TaskDetail = () => {
   const { task, project } = data;
 
   const isUserWatching = task.watchers?.some(
-    (watcher) => watcher._id === user?._id
+    (watcher) => watcher._id === user?._id,
   );
 
   return (
@@ -96,7 +98,10 @@ const TaskDetail = () => {
             <div className="flex items-center justify-between">
               {/* Meta */}
               <div className="flex items-center gap-2 min-h-[32px]">
-                <TaskPrioritySelector priority={task.priority} taskId={task._id}/>
+                <TaskPrioritySelector
+                  priority={task.priority}
+                  taskId={task._id}
+                />
 
                 <span className="text-xs text-muted-foreground leading-none">
                   Created{" "}
@@ -119,6 +124,7 @@ const TaskDetail = () => {
             {/* Title */}
             <div className="mt-3">
               <TaskTitle title={task.title} taskId={task._id} />
+              
             </div>
           </div>
 
@@ -127,27 +133,34 @@ const TaskDetail = () => {
               Description
             </h3>
 
-            <TaskDescription description={task.description || " "} taskId={task._id} />
+            <TaskDescription
+              description={task.description || " "}
+              taskId={task._id}
+            />
           </div>
-          
+
           <div className="mt-3 space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">
               Sub Task
             </h3>
-            <SubTaskDetail subTasks={task.subTasks || []} taskId={task._id}/>
+            <SubTaskDetail subTasks={task.subTasks || []} taskId={task._id} />
           </div>
         </div>
 
-                
         {/* Sidebar */}
         <div className="hidden md:block">
-          <div className="rounded-xl border bg-card p-6">
+          <div className="rounded-xl border bg-card p-6 space-y-6">
+            <Watchers watchers={task.watchers || []} />
+
+            <div className="h-px bg-border" />
+            
             <TaskAssigneesSelector
               task={task}
               assignees={task.assignees}
               projectMembers={project.members as any}
             />
           </div>
+          <TaskActivity resourceId={task._id}/>
         </div>
       </div>
     </div>
