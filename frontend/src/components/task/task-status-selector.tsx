@@ -40,12 +40,13 @@ export const TaskStatusSelector = ({
       value={status}
       onValueChange={handleStatusChange}
       disabled={isPending}
+      
     >
       <SelectTrigger className="w-[180px]">
         <SelectValue />
       </SelectTrigger>
 
-      <SelectContent>
+      <SelectContent position="popper">
         <SelectItem value="To Do">To Do</SelectItem>
         <SelectItem value="In Progress">In Progress</SelectItem>
         <SelectItem value="Completed">Completed</SelectItem>

@@ -1,9 +1,7 @@
-import  { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { Task } from "app/types";
-import  { Badge } from "../ui/badge";
+import { Badge } from "../ui/badge";
 import { TaskCard } from "./task-card";
-
-
 
 interface TaskColumnProps {
   title: string;
@@ -29,7 +27,7 @@ export const TaskColumn = ({
       <div
         className={cn(
           "space-y-4",
-          !isFullWidth ? "h-full" : "col-span-full mb-4"
+          !isFullWidth ? "h-full" : "col-span-full mb-4",
         )}
       >
         {!isFullWidth && (
@@ -42,11 +40,11 @@ export const TaskColumn = ({
         <div
           className={cn(
             "space-y-3",
-            isFullWidth && "grid grid-cols-2 lg:grid-cols-3 gap-4"
+            isFullWidth && "grid grid-cols-2 lg:grid-cols-3 gap-4",
           )}
         >
           {tasks.length === 0 ? (
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-muted-foreground border border-dashed rounded-md p-4">
               No tasks yet
             </div>
           ) : (

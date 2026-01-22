@@ -25,7 +25,7 @@ const createTask = async (req, res) => {
     }
 
     const isMember = workspace.members.some(
-      (member) => member.user.toString() === req.user._id.toString()
+      (member) => member.user.toString() === req.user._id.toString(),
     );
 
     if (!isMember) {
@@ -71,7 +71,7 @@ const getTaskById = async (req, res) => {
 
     const project = await Project.findById(task.project).populate(
       "members.user",
-      "name profilePicture"
+      "name profilePicture",
     );
 
     res.status(200).json({ task, project });
@@ -86,7 +86,7 @@ const getTaskById = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const { taskId } = req.params;
-    const { title, description, status } = req.body;
+    const { title, description, status, priority } = req.body;
 
     const task = await Task.findById(taskId);
     if (!task) {
@@ -99,7 +99,7 @@ const updateTask = async (req, res) => {
     }
 
     const isMember = project.members.some(
-      (member) => member.user.toString() === req.user._id.toString()
+      (member) => member.user.toString() === req.user._id.toString(),
     );
 
     if (!isMember) {
@@ -127,6 +127,13 @@ const updateTask = async (req, res) => {
       activities.push(`changed status from "${task.status}" to "${status}"`);
       task.status = status;
     }
+    // --- PRIORITY ---
+    if (typeof priority === "string" && priority !== task.priority) {
+      activities.push(
+        `changed status from "${task.priority}" to "${priority}"`,
+      );
+      task.priority = priority;
+    }
 
     if (activities.length === 0) {
       return res.status(400).json({
@@ -137,7 +144,7 @@ const updateTask = async (req, res) => {
     await task.save();
 
     if (activities.length > 0) {
-      await recordActivity(req.user._id, "updated_task", taskId,"Task",{
+      await recordActivity(req.user._id, "updated_task", taskId, "Task", {
         description: activities.join(", "),
       });
     }
@@ -151,4 +158,121 @@ const updateTask = async (req, res) => {
   }
 };
 
-export { createTask, getTaskById, updateTask };
+const updateTaskAssignees = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { assignees } = req.body;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const project = await Project.findById(task.project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const isMember = project.members.some(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        message: "You are no longer a member of this workspace",
+      });
+    }
+
+    const oldAssignees = task.assignees;
+    task.assignees = assignees;
+    await task.save();
+
+    await recordActivity(req.user._id, "updated_task", taskId, "Task", {
+      description: `updated task assignee from ${oldAssignees.length} to ${assignees.length}`,
+    });
+
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const addSubTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { title } = req.body;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const project = await Project.findById(task.project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const isMember = project.members.some(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        message: "You are no longer a member of this workspace",
+      });
+    }
+
+    const newSubTask = {
+      title,
+      completed: false,
+    };
+    task.subTasks.push(newSubTask);
+    await task.save();
+
+    await recordActivity(req.user._id, "created_subtask", taskId, "Task", {
+      description: `created subtask ${title}`,
+    });
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const updateSubTask = async (req, res) => {
+  try {
+    const { taskId, subTaskId } = req.params;
+    const { completed } = req.body;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const subtask = task.subTasks.id(subTaskId);
+    if (!subtask) {
+      return res.status(404).json({ message: "Sub Task not found" });
+    }
+    subtask.completed = completed
+    await task.save();
+
+    await recordActivity(req.user._id, "updated_subtask", taskId, "Task", {
+      description: `updated subtask ${subtask.title}`,
+    });
+    
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+
+export { createTask, getTaskById, updateTask, updateTaskAssignees, addSubTask, updateSubTask };

@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Check, UserPlus, X } from "lucide-react";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { useUpdateTaskAssigneesMutation } from "app/hooks/use-task";
 import { toast } from "sonner";
 
@@ -33,7 +33,7 @@ export const TaskAssigneesSelector = ({
   const { mutate, isPending } = useUpdateTaskAssigneesMutation();
 
   const [selectedIds, setSelectedIds] = useState<string[]>(
-    assignees.map((u) => u._id),
+    assignees.map((u) => u._id)
   );
   const [openPop, setOpenPop] = useState(false);
 
@@ -50,25 +50,41 @@ export const TaskAssigneesSelector = ({
       projectMembers
         .filter((m) => selectedIds.includes(m.user._id))
         .map((m) => m.user),
-    [projectMembers, selectedIds],
+    [projectMembers, selectedIds]
   );
 
   const toggleAssign = (userId: string) => {
     setSelectedIds((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId],
+        : [...prev, userId]
     );
   };
 
-  const commitIfChanged = () => {
+  const hasChanged = useMemo(() => {
+    const initial = initialIdsRef.current;
+    return (
+      initial.length !== selectedIds.length ||
+      initial.some((id) => !selectedIds.includes(id))
+    );
+  }, [selectedIds]);
+
+  const handleCancel = () => {
+    setSelectedIds(initialIdsRef.current);
+    setOpenPop(false);
+  };
+
+  const handleConfirm = () => {
     const initial = initialIdsRef.current;
 
     const hasChanged =
       initial.length !== selectedIds.length ||
       initial.some((id) => !selectedIds.includes(id));
 
-    if (!hasChanged) return;
+    if (!hasChanged) {
+      setOpenPop(false);
+      return;
+    }
 
     mutate(
       {
@@ -78,20 +94,20 @@ export const TaskAssigneesSelector = ({
       {
         onSuccess: () => {
           initialIdsRef.current = selectedIds;
-          toast.success("Update assignees successfully")
+          toast.success("Update assignees successfully");
+          setOpenPop(false);
         },
-        onError: (error: any) => {
-            setSelectedIds(initialIdsRef.current);
-            console.log(error);
-            toast.error("Failed to update assignees");
-        }
-      },
+        onError: () => {
+          setSelectedIds(initialIdsRef.current);
+          toast.error("Failed to update assignees");
+        },
+      }
     );
   };
 
   const handlePopoverChange = (nextOpen: boolean) => {
     if (openPop && !nextOpen) {
-      commitIfChanged();
+      handleCancel();
     }
     setOpenPop(nextOpen);
   };
@@ -129,9 +145,9 @@ export const TaskAssigneesSelector = ({
                     <CommandItem
                       key={user._id}
                       onSelect={() => toggleAssign(user._id)}
-                      className={clsx(
+                      className={cn(
                         "flex items-center gap-2",
-                        selected && "bg-accent/50",
+                        selected && "bg-accent/50"
                       )}
                     >
                       <Avatar className="size-6">
@@ -142,9 +158,9 @@ export const TaskAssigneesSelector = ({
                       <span className="flex-1 text-sm">{user.name}</span>
 
                       <Check
-                        className={clsx(
+                        className={cn(
                           "size-4 transition",
-                          selected ? "opacity-100" : "opacity-0",
+                          selected ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </CommandItem>
@@ -155,6 +171,25 @@ export const TaskAssigneesSelector = ({
                   {selectedUsers.length} selected
                 </div>
               </CommandGroup>
+
+              <div className="flex justify-between items-center px-2 py-2 border-t">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancel}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={handleConfirm}
+                  disabled={!hasChanged || isPending}
+                >
+                  OK
+                </Button>
+              </div>
             </Command>
           </PopoverContent>
         </Popover>

@@ -6,6 +6,9 @@ import {
   createTask,
   getTaskById,
   updateTask,
+  updateTaskAssignees,
+  addSubTask,
+  updateSubTask
 } from "../controller/task-controller.js";
 import { z } from "zod";
 
@@ -23,6 +26,19 @@ router.post(
   createTask
 );
 
+
+router.post(
+  "/:taskId/add-subtask",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      taskId: z.string(),
+    }),
+    body: z.object({title: z.string()}),
+  }),
+  addSubTask
+);
+
 router.get(
   "/:taskId",
   authMiddleware,
@@ -32,6 +48,16 @@ router.get(
     }),
   }),
   getTaskById
+);
+
+router.put(
+  "/:taskId/assignees",
+  authMiddleware,
+  validateRequest({
+    params: z.object({ taskId: z.string() }),
+    body: z.object({ assignees: z.array(z.string()) }),
+  }),
+  updateTaskAssignees
 );
 
 router.patch(
@@ -44,11 +70,23 @@ router.patch(
     data: z.object({
       title: z.string().optional(),
       description: z.string().optional(),
-      status: z.enum(["To Do", "In Progress", "Completed", "Cancelled"]).optional()
+      status: z
+        .enum(["To Do", "In Progress", "Completed", "Cancelled"])
+        .optional(),
     }),
   }),
   updateTask
 );
 
+
+router.put(
+  "/:taskId/update-subtask/:subTaskId",
+  authMiddleware,
+  validateRequest({
+    params: z.object({ taskId: z.string(), subTaskId: z.string() }),
+    body: z.object({ completed: z.boolean() }),
+  }),
+  updateSubTask
+);
 
 export default router;

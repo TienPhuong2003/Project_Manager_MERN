@@ -45,9 +45,9 @@ export const TaskDescription = ({
   };
 
   return (
-    <div className="group rounded-lg border bg-muted/30 p-4 transition hover:bg-muted/40">
+    <div className="rounded-lg border bg-background p-4">
       {isEditing ? (
-        <div className="space-y-3">
+        <div className="space-y-3 ">
           <Textarea
             autoFocus
             className="resize-none"

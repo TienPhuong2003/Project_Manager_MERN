@@ -52,7 +52,7 @@ const ProjectDetail = () => {
 
   const handleTaskClick = (taskId: string) => {
     navigate(
-      `/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`
+      `/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,
     );
   };
 
@@ -60,6 +60,7 @@ const ProjectDetail = () => {
     <div className="space-y-10">
       {/* ===== Header ===== */}
       <div className="space-y-4">
+        {/* Title */}
         <div className="flex items-center gap-2">
           <BackButton />
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -67,41 +68,48 @@ const ProjectDetail = () => {
           </h1>
         </div>
 
+        {/* Description */}
         {project.description && (
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {project.description}
-          </p>
-        )}
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{project.status}</Badge>
-
-          <Badge variant="outline">{tasks.length} tasks</Badge>
-
-          {project.dueDate && (
-            <Badge variant="destructive">
-              Due {new Date(project.dueDate).toLocaleDateString()}
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* ===== Info bar ===== */}
-      <div className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{projectProgress}%</span>
+          <div className="max-w-2xl border-l-2 border-muted pl-3">
+            <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
+              {project.description}
+            </p>
           </div>
-          <Progress value={projectProgress} className="h-2" />
-        </div>
+        )}
 
-        <Button
-          onClick={() => setIsCreateTask(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add task
-        </Button>
+        {/* Meta row */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">{project.status}</Badge>
+
+            <Badge variant="outline">{tasks.length} tasks</Badge>
+
+            {project.dueDate && (
+              <Badge variant="destructive">
+                Due {new Date(project.dueDate).toLocaleDateString()}
+              </Badge>
+            )}
+
+            <div className="ml-2 flex items-center gap-2">
+              <Progress
+                value={projectProgress}
+                className="h-2 w-16 opacity-80"
+              />
+              <span className="text-xs font-medium text-muted-foreground">
+                {projectProgress}%
+              </span>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => setIsCreateTask(true)}
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add task
+          </Button>
+        </div>
       </div>
 
       {/* ===== Task section ===== */}
@@ -121,10 +129,16 @@ const ProjectDetail = () => {
               >
                 In Progress
               </TabsTrigger>
-              <TabsTrigger value="completed" onClick={() => setTaskFilter("Completed")}>
+              <TabsTrigger
+                value="completed"
+                onClick={() => setTaskFilter("Completed")}
+              >
                 Completed
               </TabsTrigger>
-              <TabsTrigger value="cancelled" onClick={() => setTaskFilter("Cancelled")}>
+              <TabsTrigger
+                value="cancelled"
+                onClick={() => setTaskFilter("Cancelled")}
+              >
                 Cancelled
               </TabsTrigger>
             </TabsList>
@@ -140,10 +154,12 @@ const ProjectDetail = () => {
                   In Progress
                 </Badge>
                 <Badge variant="outline" className="bg-background gap-1">
-                  {tasks.filter((task) => task.status === "Completed").length} Completed
+                  {tasks.filter((task) => task.status === "Completed").length}{" "}
+                  Completed
                 </Badge>
                 <Badge variant="outline" className="bg-background gap-1">
-                  {tasks.filter((task) => task.status === "Cancelled").length} Cancelled
+                  {tasks.filter((task) => task.status === "Cancelled").length}{" "}
+                  Cancelled
                 </Badge>
               </div>
             </div>

@@ -37,12 +37,13 @@ export const useUpdateTaskMutation = () => {
         title: string;
         description: string;
         status: "To Do" | "In Progress" | "Completed" | "Cancelled";
+        priority: "Low" | "Medium" | "High";
       }>;
     }) => patchData(`/tasks/${taskId}`, data),
 
-    onSuccess: (updatedTask: any) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({
-        queryKey: ["task", updatedTask._id],
+        queryKey: ["task", data._id],
       });
     },
   });
@@ -53,7 +54,45 @@ export const useUpdateTaskAssigneesMutation = () => {
 
   return useMutation({
     mutationFn: (data: { taskId: string; assignees: string[] }) =>
-      updateData(`/tasks/${data.taskId}/assignees`, { assignees: data.assignees }),
+      updateData(`/tasks/${data.taskId}/assignees`, {
+        assignees: data.assignees,
+      }),
+
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task", data._id],
+      });
+    },
+  });
+};
+
+export const useUpdateSubTaskMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      taskId: string;
+      subTaskId: string;
+      completed: boolean;
+    }) =>
+      updateData(`/tasks/${data.taskId}/update-subtask/${data.subTaskId}`, {
+        completed: data.completed,
+      }),
+
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task", data._id],
+      });
+    },
+  });
+};
+
+export const useAddSubTaskMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { taskId: string; title: string }) =>
+      postData(`/tasks/${data.taskId}/add-subtask`, { title: data.title }),
 
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({

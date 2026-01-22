@@ -59,7 +59,7 @@ export interface Task {
     priority: TaskPriority;
     assignees: User[];
     createdBy: User;
-    subtasks? : Subtask[];
+    subTasks? : Subtask[];
     watchers? : User[];
     attachments? : Attachment[];
 }
