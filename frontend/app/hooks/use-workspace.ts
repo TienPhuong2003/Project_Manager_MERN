@@ -16,7 +16,7 @@ export const useGetWorkspacesQuery = () => {
     })
 }
 
-export const useGetWorkspaceById = (workspaceId: string) => {
+export const useGetWorkspaceById = (workspaceId?: string) => {
     return useQuery({
         queryKey: ["workspaces", workspaceId],
         queryFn: async () =>  fetchData(`/workspaces/${workspaceId}/projects`),
@@ -24,9 +24,10 @@ export const useGetWorkspaceById = (workspaceId: string) => {
     })
 }
 
-export const useGetWorkspaceStats = (workspaceId: string) => {
+export const useGetWorkspaceStats = (workspaceId?: string) => {
     return useQuery({
         queryKey: ["workspaces", workspaceId, "stats"],
         queryFn: async () =>  fetchData(`/workspaces/${workspaceId}/stats`),
+        enabled: !!workspaceId
     })
 }

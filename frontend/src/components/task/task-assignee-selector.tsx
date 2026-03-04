@@ -12,7 +12,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Check, UserPlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -201,20 +201,18 @@ export const TaskAssigneesSelector = ({
 
       {/* Selected avatars */}
       {selectedUsers.length > 0 && (
-        <div className="flex -space-x-2 pt-1">
+        <AvatarGroup className="grayscale">
           {selectedUsers.slice(0, 5).map((u) => (
-            <Avatar key={u._id} className="size-7 border-2 border-background">
-              <AvatarImage src={u.profilePicture} />
+            <Avatar key={u._id}>
+              <AvatarImage src={u.profilePicture} alt={u.name} />
               <AvatarFallback>{u.name?.[0]}</AvatarFallback>
             </Avatar>
           ))}
 
           {selectedUsers.length > 5 && (
-            <div className="size-7 rounded-full bg-muted text-xs flex items-center justify-center">
-              +{selectedUsers.length - 5}
-            </div>
+            <AvatarGroupCount>+{selectedUsers.length - 5}</AvatarGroupCount>
           )}
-        </div>
+        </AvatarGroup>
       )}
     </div>
   );

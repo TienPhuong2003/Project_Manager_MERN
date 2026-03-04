@@ -15,6 +15,19 @@ export const StatCard = ({ data }: { data: StatsCardProps }) => {
           </p>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{data.totalProjects}</div>
+          <p className="text-xs text-muted-foreground">
+            {data.totalTaskInProgress} in progress
+          </p>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">To Do</CardTitle>
@@ -26,6 +39,7 @@ export const StatCard = ({ data }: { data: StatsCardProps }) => {
           </p>
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">In Progress</CardTitle>

@@ -49,6 +49,7 @@ import {
 import { toast } from "sonner";
 import { SubTaskView } from "./sub-task-view-dialog";
 import { SubTaskCreate } from "./sub-task-create-dialog";
+import { NoDataFound } from "../no-data-found";
 type Props = {
   taskId: string;
   subTasks: Subtask[];
@@ -118,13 +119,6 @@ export const SubTaskDetail = ({ taskId, subTasks }: Props) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  if (!subTasks.length) {
-    return (
-      <div className="rounded-md border p-4 text-sm italic text-muted-foreground">
-        No subtasks
-      </div>
-    );
-  }
   const hasSelectedRow = table.getSelectedRowModel().rows.length > 0;
 
   const totalCount = subTasks.length;
@@ -273,70 +267,72 @@ export const SubTaskDetail = ({ taskId, subTasks }: Props) => {
           >
             <PlusIcon className="size-4" />
           </Button>
-          <SubTaskCreate
-            taskId={taskId}
-            open={openCreateDialog}
-            onOpenChange={setOpenCreateDialog}
-          />
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border overflow-hidden">
-        <Table className="">
-          <TableHeader>
-            {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
-                {group.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onDoubleClick={() => handleViewSubtask(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="p-2">
+      {subTasks.length === 0 ? (
+        <NoDataFound
+          title="No Sub Task"
+          description="No Sub Task Found"
+        />
+      ) : (
+        <div className="rounded-md border overflow-hidden">
+          <Table className="">
+            <TableHeader>
+              {table.getHeaderGroups().map((group) => (
+                <TableRow key={group.id}>
+                  {group.headers.map((header) => (
+                    <TableHead key={header.id}>
                       {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
+                        header.column.columnDef.header,
+                        header.getContext(),
                       )}
-                    </TableCell>
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
 
-        {selectedSubtask && (
-          <SubTaskView
-            open={openViewDialog}
-            onOpenChange={setOpenViewDialog}
-            subtask={selectedSubtask}
-          />
-        )}
-      </div>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    onDoubleClick={() => handleViewSubtask(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="p-2">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {selectedSubtask && (
+            <SubTaskView
+              open={openViewDialog}
+              onOpenChange={setOpenViewDialog}
+              subtask={selectedSubtask}
+            />
+          )}
+        </div>
+      )}
 
       {/* Pagination */}
       <div className="flex items-center justify-between px-2 py-2">
@@ -400,6 +396,11 @@ export const SubTaskDetail = ({ taskId, subTasks }: Props) => {
           </Button>
         </div>
       </div>
+      <SubTaskCreate
+        taskId={taskId}
+        open={openCreateDialog}
+        onOpenChange={setOpenCreateDialog}
+      />
     </div>
   );
 };
