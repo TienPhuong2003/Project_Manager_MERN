@@ -1,4 +1,4 @@
-import React, { use, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { forgotPasswordSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";

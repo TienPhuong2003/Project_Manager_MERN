@@ -121,7 +121,7 @@ export const TaskAssigneesSelector = ({
     <div className="space-y-1">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-muted-foreground">Assignees</h3>
+        <h3 className="text-sm font-semibold text-foreground">Assignees</h3>
 
         <Popover open={openPop} onOpenChange={handlePopoverChange}>
           <PopoverTrigger asChild>

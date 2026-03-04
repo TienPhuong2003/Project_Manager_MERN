@@ -3,6 +3,7 @@ import ActivityLog from "../models/activity.js";
 import Project from "../models/project.js";
 import Task from "../models/task.js";
 import Workspace from "../models/workspace.js";
+import Comment from "../models/comment.js";
 
 const createTask = async (req, res) => {
   try {
@@ -226,12 +227,25 @@ const addSubTask = async (req, res) => {
       });
     }
 
-    const newSubTask = {
-      title,
-      completed: false,
-    };
-    task.subTasks.push(newSubTask);
-    await task.save();
+    await Task.findByIdAndUpdate(
+      taskId,
+      {
+        $push: {
+          subTasks: {
+            $each: [
+              {
+                title,
+                completed: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            ],
+            $position: 0,
+          },
+        },
+      },
+      { new: true },
+    );
 
     await recordActivity(req.user._id, "created_subtask", taskId, "Task", {
       description: `created sub task "${title}"`,
@@ -261,6 +275,7 @@ const updateSubTask = async (req, res) => {
     }
     const oldTitle = subtask.title;
     subtask.title = title;
+    subtask.updatedAt = new Date();
     await task.save();
 
     await recordActivity(req.user._id, "updated_subtask", taskId, "Task", {
@@ -291,6 +306,7 @@ const completedSubTask = async (req, res) => {
       return res.status(404).json({ message: "Sub Task not found" });
     }
     subtask.completed = completed;
+    subtask.updatedAt = new Date();
     await task.save();
 
     await recordActivity(req.user._id, "completed_subtask", taskId, "Task", {
@@ -325,6 +341,162 @@ const getTaskActivity = async (req, res) => {
   }
 };
 
+const getCommentsByTaskId = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const comments = await Comment.find({ task: taskId })
+      .populate("author", "name profilePicture")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(comments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const addComment = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { text } = req.body;
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const project = await Project.findById(task.project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    const isMember = project.members.some(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+    if (!isMember) {
+      return res.status(403).json({
+        message: "You are no longer a member of this workspace",
+      });
+    }
+
+    const newComment = await Comment.create({
+      text,
+      task: taskId,
+      author: req.user._id,
+    });
+
+    task.comments.push(newComment._id);
+    await task.save();
+
+    await recordActivity(req.user._id, "added_comment", taskId, "Task", {
+      description: `${req.user.name} commented on the task "${task.title}" of project "${project.title}""`,
+    });
+
+    res.status(201).json(newComment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const watchTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const project = await Project.findById(task.project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    const isMember = project.members.some(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+    if (!isMember) {
+      return res.status(403).json({
+        message: "You are no longer a member of this workspace",
+      });
+    }
+    const isWatching = task.watchers.includes(req.user._id);
+
+    if (!isWatching) {
+      task.watchers.push(req.user._id);
+    } else {
+      task.watchers = task.watchers.filter(
+        (userId) => userId.toString() !== req.user._id.toString(),
+      );
+    }
+
+    await task.save();
+
+    await recordActivity(
+      req.user._id,
+      "updated_task",
+      taskId,
+      "Task",
+      {
+        description: ` ${isWatching ? "stopped watching" : "started watching"} the task "${task.title}"`,
+      },
+    );
+
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const archiveTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const project = await Project.findById(task.project);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    const isMember = project.members.some(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+    if (!isMember) {
+      return res.status(403).json({
+        message: "You are no longer a member of this workspace",
+      });
+    }
+    const isArchived = task.isArchived;
+    task.isArchived = !isArchived;
+    await task.save();
+
+    await recordActivity(
+      req.user._id,
+      "updated_task",
+      taskId,
+      "Task",
+      {
+        description: `${req.user.name} ${isArchived ? "unarchived" : "archived"} the task "${task.title}"`,
+      },
+    );
+    res.status(200).json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
 export {
   createTask,
   getTaskById,
@@ -334,4 +506,8 @@ export {
   updateSubTask,
   getTaskActivity,
   completedSubTask,
+  getCommentsByTaskId,
+  addComment,
+  watchTask,
+  archiveTask,
 };

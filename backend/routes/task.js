@@ -10,7 +10,11 @@ import {
   addSubTask,
   updateSubTask,
   getTaskActivity,
-  completedSubTask
+  completedSubTask,
+  getCommentsByTaskId,
+  addComment,
+  watchTask,
+  archiveTask,
 } from "../controller/task-controller.js";
 import { z } from "zod";
 
@@ -25,9 +29,8 @@ router.post(
     }),
     body: taskSchema,
   }),
-  createTask
+  createTask,
 );
-
 
 router.post(
   "/:taskId/add-subtask",
@@ -36,9 +39,43 @@ router.post(
     params: z.object({
       taskId: z.string(),
     }),
-    body: z.object({title: z.string()}),
+    body: z.object({ title: z.string() }),
   }),
-  addSubTask
+  addSubTask,
+);
+
+router.post(
+  "/:taskId/add-comment",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      taskId: z.string(),
+    }),
+    body: z.object({ text: z.string() }),
+  }),
+  addComment,
+);
+
+router.post(
+  "/:taskId/watch-task",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      taskId: z.string(),
+    }),
+  }),
+  watchTask,
+);
+
+router.post(
+  "/:taskId/archive-task",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      taskId: z.string(),
+    }),
+  }),
+  archiveTask,
 );
 
 router.get(
@@ -49,7 +86,7 @@ router.get(
       taskId: z.string(),
     }),
   }),
-  getTaskById
+  getTaskById,
 );
 
 router.put(
@@ -59,7 +96,7 @@ router.put(
     params: z.object({ taskId: z.string() }),
     body: z.object({ assignees: z.array(z.string()) }),
   }),
-  updateTaskAssignees
+  updateTaskAssignees,
 );
 
 router.patch(
@@ -77,9 +114,8 @@ router.patch(
         .optional(),
     }),
   }),
-  updateTask
+  updateTask,
 );
-
 
 router.put(
   "/:taskId/update-subtask/:subTaskId",
@@ -88,7 +124,7 @@ router.put(
     params: z.object({ taskId: z.string(), subTaskId: z.string() }),
     body: z.object({ title: z.string() }),
   }),
-  updateSubTask
+  updateSubTask,
 );
 
 router.put(
@@ -98,7 +134,7 @@ router.put(
     params: z.object({ taskId: z.string(), subTaskId: z.string() }),
     body: z.object({ completed: z.boolean() }),
   }),
-  completedSubTask
+  completedSubTask,
 );
 
 router.get(
@@ -109,8 +145,18 @@ router.get(
       resourceId: z.string(),
     }),
   }),
-  getTaskActivity
+  getTaskActivity,
 );
 
+router.get(
+  "/:taskId/comments",
+  authMiddleware,
+  validateRequest({
+    params: z.object({
+      taskId: z.string(),
+    }),
+  }),
+  getCommentsByTaskId,
+);
 
 export default router;

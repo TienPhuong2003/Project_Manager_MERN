@@ -23,7 +23,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
   const priority = priorityConfig[task.priority];
 
   const completedSubtasks =
-    task.subtasks?.filter((s) => s.completed).length ?? 0;
+    task.subTasks?.filter((s) => s.completed).length ?? 0;
 
   return (
     <Card
@@ -110,9 +110,9 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
         </div>
 
         {/* Subtasks */}
-        {task.subtasks && task.subtasks.length > 0 && (
+        {task.subTasks && task.subTasks.length > 0 && (
           <div className="text-[11px] text-muted-foreground">
-            {completedSubtasks} / {task.subtasks.length} subtasks
+            {completedSubtasks} / {task.subTasks.length} subtasks
           </div>
         )}
       </CardContent>

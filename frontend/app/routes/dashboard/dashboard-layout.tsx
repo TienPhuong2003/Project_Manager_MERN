@@ -21,9 +21,6 @@ const DashboardLayout = () => {
   const { workspaces: loaderWorkspaces } = useLoaderData() as {
     workspaces: Workspace[];
   };
-
-  const [workspaces, setWorkspaces] = useState<Workspace[]>(loaderWorkspaces);
-
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
     null
@@ -38,7 +35,6 @@ const DashboardLayout = () => {
       <SidebarComponent currentWorkspace={currentWorkspace} />
       <div className="flex flex-1 flex-col h-full">
         <Header
-          workspaces={workspaces}
           onWorkspaceSelected={handleWorkspaceSelected}
           selectedWorkspace={currentWorkspace}
           onCreateWorkspace={() => setIsCreatingWorkspace(true)}

@@ -1,7 +1,11 @@
 import { BackButton } from "@/components/ui/back-button";
 import { Loader } from "@/components/ui/loader";
 import { useAuth } from "@/provider/auth-context";
-import { useTaskById } from "app/hooks/use-task";
+import {
+  useArchiveTaskMutation,
+  useTaskById,
+  useWatchTaskMutation,
+} from "app/hooks/use-task";
 import type { Project, Task } from "app/types";
 import { useParams } from "react-router";
 import { Badge } from "@/components/ui/badge";
@@ -13,13 +17,19 @@ import { TaskStatusSelector } from "@/components/task/task-status-selector";
 import { TaskDescription } from "@/components/task/task-description";
 import { TaskAssigneesSelector } from "@/components/task/task-assignee-selector";
 import { TaskPrioritySelector } from "@/components/task/task-priority-selector";
-import { SubTaskDetail } from "@/components/task/sub-task-detail";
+import { SubTaskDetail } from "@/components/subtask/sub-task-detail";
 import { Watchers } from "@/components/task/task-watcher-selector";
 import { TaskActivity } from "@/components/task/task-activity";
+import { CommentSection } from "@/components/comment/comment-section";
+import { toast } from "sonner";
 
 const TaskDetail = () => {
   const { user } = useAuth();
   const { taskId } = useParams<{ taskId: string }>();
+
+  const { mutate: watchTask, isPending: isWatching } = useWatchTaskMutation();
+  const { mutate: archiveTask, isPending: isArchiving } =
+    useArchiveTaskMutation();
 
   const { data, isLoading } = useTaskById(taskId!) as {
     data: {
@@ -47,121 +57,169 @@ const TaskDetail = () => {
     (watcher) => watcher._id === user?._id,
   );
 
+  const handleWatchTask = () => {
+    watchTask(
+      { taskId: task._id },
+      {
+        onSuccess: () => {
+          toast.success(isUserWatching ? "Unwatched task" : "Watching task");
+        },
+        onError: () => {
+          toast.error("Failed to watch task");
+        },
+      },
+    );
+  };
+
+  const handleArchiveTask = () => {
+    archiveTask(
+      { taskId: task._id },
+      {
+        onSuccess: () => {
+          toast.success(task.isArchived ? "Unarchived task" : "Archived task");
+        },
+        onError: () => {
+          toast.error("Failed to archive task");
+        },
+      },
+    );
+  };
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-5">
-      {/* ===== Header ===== */}
-      <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton />
+    <div className="container mx-auto p-0 py-4 md:px-4">
+      <div className="mx-auto max-w-6xl px-4 py-5 overflow-x-hidden">
+        {/* ===== Header ===== */}
+        <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <BackButton />
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold md:text-2xl">Task detail</h1>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold md:text-2xl">
+                  Task detail
+                </h1>
 
-              {task.isArchived && (
-                <Badge variant="outline" className="text-xs">
-                  Archived
-                </Badge>
-              )}
+                {task.isArchived && (
+                  <Badge variant="outline" className="text-xs">
+                    Archived
+                  </Badge>
+                )}
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                View & manage this task
+              </p>
             </div>
+          </div>
 
-            <p className="text-sm text-muted-foreground">
-              View & manage this task
-            </p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={handleWatchTask} disabled={isWatching}>
+              {isUserWatching ? (
+                <>
+                  <EyeOff className="mr-2 size-4" />
+                  Unwatch
+                </>
+              ) : (
+                <>
+                  <Eye className="mr-2 size-4" />
+                  Watch
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant={task.isArchived ? "secondary" : "outline"}
+              size="sm"
+              onClick={handleArchiveTask}
+              disabled={isArchiving}
+            >
+              {task.isArchived ? "Unarchive" : "Archive"}
+            </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm">
-            {isUserWatching ? (
-              <>
-                <EyeOff className="mr-2 size-4" />
-                Unwatch
-              </>
-            ) : (
-              <>
-                <Eye className="mr-2 size-4" />
-                Watch
-              </>
-            )}
-          </Button>
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">
+          {/* ===== Main content ===== */}
+          <div className="md:col-span-8 space-y-6">
+            {/* Meta + Title */}
+            <div className="rounded-xl border bg-card p-6 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <TaskPrioritySelector
+                    priority={task.priority}
+                    taskId={task._id}
+                  />
 
-          <Button variant={task.isArchived ? "secondary" : "outline"} size="sm">
-            {task.isArchived ? "Unarchive" : "Archive"}
-          </Button>
-        </div>
-      </div>
+                  <span className="text-xs text-muted-foreground">
+                    Created{" "}
+                    {formatDistanceToNow(new Date(task.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <div className="rounded-xl border bg-card p-6">
-            <div className="flex items-center justify-between">
-              {/* Meta */}
-              <div className="flex items-center gap-2 min-h-[32px]">
-                <TaskPrioritySelector
-                  priority={task.priority}
+                <div className="flex items-center gap-2">
+                  <TaskStatusSelector status={task.status} taskId={task._id} />
+
+                  <Button variant="destructive" size="sm">
+                    Delete
+                  </Button>
+                </div>
+              </div>
+
+              <TaskTitle title={task.title} taskId={task._id} />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">
+                Describe this Task
+              </h3>
+
+              <TaskDescription
+                description={task.description || " "}
+                taskId={task._id}
+              />
+            </div>
+
+            {/* Subtasks */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold text-foreground">
+                Subtasks
+              </h3>
+
+              <div className="rounded-xl border bg-card p-4">
+                <SubTaskDetail
+                  subTasks={task.subTasks || []}
                   taskId={task._id}
                 />
-
-                <span className="text-xs text-muted-foreground leading-none">
-                  Created{" "}
-                  {formatDistanceToNow(new Date(task.createdAt), {
-                    addSuffix: true,
-                  })}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 min-h-[32px] shrink-0">
-                <TaskStatusSelector status={task.status} taskId={task._id} />
-
-                <Button variant="destructive" size="sm" className="h-8">
-                  Delete Task
-                </Button>
               </div>
             </div>
+          </div>
+          {/* ===== Sidebar ===== */}
+          <div className="md:col-span-4 hidden md:flex flex-col gap-4 min-h-0">
+            {/* Watchers + Assignees */}
+            <div className="rounded-xl border bg-card p-6 space-y-6">
+              <Watchers watchers={task.watchers || []} />
 
-            {/* Title */}
-            <div className="mt-3">
-              <TaskTitle title={task.title} taskId={task._id} />
-              
+              <div className="h-px bg-border" />
+
+              <TaskAssigneesSelector
+                task={task}
+                assignees={task.assignees}
+                projectMembers={project.members as any}
+              />
+            </div>
+
+            {/* Activity */}
+            <div className=" min-h-0 flex-1 rounded-xl border bg-card min-w-0">
+              <TaskActivity resourceId={task._id} />
             </div>
           </div>
-
-          <div className="mt-3 space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Description
-            </h3>
-
-            <TaskDescription
-              description={task.description || " "}
-              taskId={task._id}
-            />
-          </div>
-
-          <div className="mt-3 space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Sub Task
-            </h3>
-            <SubTaskDetail subTasks={task.subTasks || []} taskId={task._id} />
-          </div>
         </div>
-
-        {/* Sidebar */}
-        <div className="hidden md:block">
-          <div className="rounded-xl border bg-card p-6 space-y-6">
-            <Watchers watchers={task.watchers || []} />
-
-            <div className="h-px bg-border" />
-            
-            <TaskAssigneesSelector
-              task={task}
-              assignees={task.assignees}
-              projectMembers={project.members as any}
-            />
-          </div>
-          <TaskActivity resourceId={task._id}/>
-        </div>
+      </div>
+      <div className="mx-auto max-w-6xl px-4 pb-8 overflow-x-hidden">
+        <CommentSection taskId={task._id} members={project.members as any} />
       </div>
     </div>
   );

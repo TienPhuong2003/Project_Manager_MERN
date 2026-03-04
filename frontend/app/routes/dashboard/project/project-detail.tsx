@@ -90,7 +90,7 @@ const ProjectDetail = () => {
           </div>
 
           <div className="shrink-0 ml-auto">
-            <Button size="sm" className="flex items-center gap-2">
+            <Button size="sm" className="flex items-center gap-2" onClick={() => setIsCreateTask(true)}>
               <Plus className="h-4 w-4" />
               Add task
             </Button>

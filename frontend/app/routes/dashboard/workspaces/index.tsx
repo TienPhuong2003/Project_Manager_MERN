@@ -8,18 +8,17 @@ import { NoDataFound } from "@/components/no-data-found";
 import { Link } from "react-router";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { WorkspaceAvatar } from "@/components/workspace/workspace-avatar";
 import { format } from "date-fns";
 import { Loader } from "@/components/ui/loader";
 const Workspaces = () => {
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
-  const { data, isLoading, isError } = useGetWorkspacesQuery();
-  const workspaces: Workspace[] = Array.isArray(data) ? data : [];
+  const { data: workspaces, isLoading, isError } = useGetWorkspacesQuery() as {
+    data: Workspace[];
+    isLoading: boolean;
+    isError: boolean;
+  };
 
   if (isLoading) {
     return <Loader />;

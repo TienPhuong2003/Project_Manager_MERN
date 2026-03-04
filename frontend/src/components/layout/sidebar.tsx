@@ -39,7 +39,7 @@ export const SidebarComponent = ({
     <aside
       className={cn(
         "flex flex-col border-r bg-sidebar transition-all duration-300",
-        isCollapsed ? "md:w-[80px]" : "md:w-[240px]"
+        isCollapsed ? "md:w-20" : "md:w-50"
       )}
     >
       {/* Header */}

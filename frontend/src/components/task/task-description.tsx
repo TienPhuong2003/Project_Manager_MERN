@@ -79,11 +79,11 @@ export const TaskDescription = ({
           </div>
         </div>
       ) : (
-        <div className="relative">
+        <div className="relative group">
           {description ? (
             <p
               onClick={() => setIsEditing(true)}
-              className="whitespace-pre-wrap text-sm text-foreground cursor-text pr-6"
+              className="whitespace-pre-wrap w-full wrap-break-word text-sm text-foreground cursor-text pr-6"
             >
               {description}
             </p>

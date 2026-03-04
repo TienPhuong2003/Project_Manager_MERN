@@ -29,7 +29,7 @@ export const SidebarNav = ({
         const Icon = el.icon;
         const isActive = location.pathname === el.href;
         const handleClick = () => {
-          if (el.href === "/workspace") {
+          if (el.href === "/workspaces") {
             navigate(el.href);
           } else if (currentWorkspace && currentWorkspace._id) {
             navigate(`${el.href}?workspaceId=${currentWorkspace._id}`);

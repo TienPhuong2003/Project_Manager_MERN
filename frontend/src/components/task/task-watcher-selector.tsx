@@ -5,7 +5,7 @@ export const Watchers = ({ watchers }: { watchers: User[] }) => {
   return (
     <div className="space-y-1">
       {/* Header */}
-      <h3 className="text-sm font-medium text-muted-foreground">Watchers</h3>
+      <h3 className="text-sm font-semibold text-foreground">Watchers</h3>
       {/* Avatars */}
       <div className="flex items-center -space-x-2">
         {watchers && watchers.length > 0 ? (

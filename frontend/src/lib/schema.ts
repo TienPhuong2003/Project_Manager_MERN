@@ -8,7 +8,7 @@ export const signInSchema = z.object({
     .string()
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-      "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters"
+      "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters",
     ),
 });
 
@@ -25,7 +25,7 @@ export const signUpSchema = z
       .string()
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-        "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters"
+        "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters",
       ),
 
     confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -41,7 +41,7 @@ export const resetPasswordSchema = z
       .string()
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/,
-        "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters"
+        "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters",
       ),
 
     confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -72,7 +72,7 @@ export const projectSchema = z.object({
       z.object({
         user: z.string(),
         role: z.enum(["manager", "contributor", "viewer"]),
-      })
+      }),
     )
     .optional(),
   tags: z.string().optional(),
@@ -81,8 +81,12 @@ export const projectSchema = z.object({
 export const createTaskSchema = z.object({
   title: z.string().min(1, "Task title must be required"),
   description: z.string().optional(),
-  status: z.enum(["To Do", "In Progress", "Completed","Cancelled"]),
+  status: z.enum(["To Do", "In Progress", "Completed", "Cancelled"]),
   priority: z.enum(["Low", "Medium", "High"]),
   dueDate: z.string().min(1, "Due Date must be required"),
-  assignees: z.array(z.string()).min(1,"At least one asignee is required")
+  assignees: z.array(z.string()).min(1, "At least one asignee is required"),
+});
+
+export const createSubTaskSchema = z.object({
+  title: z.string().min(1," Sub Task title must be required").max(30, "Title does not longer than 30 character"),
 });
