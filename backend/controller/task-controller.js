@@ -437,15 +437,9 @@ const watchTask = async (req, res) => {
 
     await task.save();
 
-    await recordActivity(
-      req.user._id,
-      "updated_task",
-      taskId,
-      "Task",
-      {
-        description: ` ${isWatching ? "stopped watching" : "started watching"} the task "${task.title}"`,
-      },
-    );
+    await recordActivity(req.user._id, "updated_task", taskId, "Task", {
+      description: ` ${isWatching ? "stopped watching" : "started watching"} the task "${task.title}"`,
+    });
 
     res.status(200).json(task);
   } catch (error) {
@@ -479,18 +473,26 @@ const archiveTask = async (req, res) => {
     task.isArchived = !isArchived;
     await task.save();
 
-    await recordActivity(
-      req.user._id,
-      "updated_task",
-      taskId,
-      "Task",
-      {
-        description: `${req.user.name} ${isArchived ? "unarchived" : "archived"} the task "${task.title}"`,
-      },
-    );
+    await recordActivity(req.user._id, "updated_task", taskId, "Task", {
+      description: `${req.user.name} ${isArchived ? "unarchived" : "archived"} the task "${task.title}"`,
+    });
     res.status(200).json(task);
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const getMyTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignees: { $in: [req.user._id] } })
+      .populate("project", "title workspace")
+      .sort({ createdAt: -1 });
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "Internal server error",
     });
@@ -510,4 +512,5 @@ export {
   addComment,
   watchTask,
   archiveTask,
+  getMyTasks,
 };

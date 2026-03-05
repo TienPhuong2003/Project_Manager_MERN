@@ -15,6 +15,7 @@ import {
   addComment,
   watchTask,
   archiveTask,
+  getMyTasks,
 } from "../controller/task-controller.js";
 import { z } from "zod";
 
@@ -78,6 +79,8 @@ router.post(
   archiveTask,
 );
 
+router.get("/my-tasks", authMiddleware, getMyTasks);
+
 router.get(
   "/:taskId",
   authMiddleware,
@@ -88,6 +91,8 @@ router.get(
   }),
   getTaskById,
 );
+
+
 
 router.put(
   "/:taskId/assignees",
