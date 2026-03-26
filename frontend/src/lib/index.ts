@@ -1,5 +1,5 @@
 import type { ProjectStatus, TaskStatus } from "app/types";
-import { CheckCircle, Clock, Loader, Flag } from "lucide-react";
+import { CheckCircle, Clock, Loader, Flag, XCircle } from "lucide-react";
 export const publicRoutes = [
   "/sign-in",
   "/sign-up",
@@ -41,7 +41,7 @@ export const statusConfig = {
   },
 
   "Cancelled": {
-    icon: CheckCircle,
+    icon: XCircle,
     className: "text-red-600",
   },
 };

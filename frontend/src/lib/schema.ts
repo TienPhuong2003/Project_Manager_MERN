@@ -88,5 +88,14 @@ export const createTaskSchema = z.object({
 });
 
 export const createSubTaskSchema = z.object({
-  title: z.string().min(1," Sub Task title must be required").max(30, "Title does not longer than 30 character"),
+  title: z
+    .string()
+    .min(1, " Sub Task title must be required")
+    .max(30, "Title does not longer than 30 character"),
 });
+
+export const inviteMemberSchema = z.object({
+  email: z.string().email("invalid email address"),
+  role: z.enum(["admin", "member", "viewer"]),
+});
+

@@ -33,3 +33,34 @@ export const resetPasswordTemplate = ({ name, link }) => `
     </p>
   </div>
 `;
+export const inviteEmailTemplate = ({ name, workspaceName, inviter, link }) => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin:auto;">
+    <h2 style="color:#16a34a;">You're invited to TaskHub 🎉</h2>
+
+    <p>Hi <strong>${name}</strong>,</p>
+
+    <p>
+      <strong>${inviter}</strong> has invited you to join the workspace 
+      <strong>${workspaceName}</strong> on <strong>TaskHub</strong>.
+    </p>
+
+    <p>Click the button below to accept the invitation:</p>
+
+    <a href="${link}"
+      style="
+        display:inline-block;
+        padding:12px 24px;
+        background:#16a34a;
+        color:#fff;
+        text-decoration:none;
+        border-radius:6px;
+        font-weight:500;
+      ">
+      Accept Invitation
+    </a>
+
+    <p style="margin-top:10px;font-size:12px;color:#666;">
+      This invitation may expire after 7 days.
+    </p>
+  </div>
+`;

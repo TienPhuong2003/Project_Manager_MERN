@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
@@ -8,6 +8,7 @@ import routes from "./routes/index.js";
 
 
 const app = express();
+dotenv.config();
 app.use(
   cors({
     origin: process.env.FRONT_END_URL || "http://localhost:5173",

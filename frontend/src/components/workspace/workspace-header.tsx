@@ -84,11 +84,11 @@ export const WorkspaceHeader = ({
             {members.slice(0, 6).map((member) => (
               <Avatar
                 key={member._id}
-                className="h-8 w-8 border-2 border-background shadow-sm"
-                title={`${member.user.name} • ${member.role}`}
+                className="h-8 w-8 border-2 border-background shadow-sm font-bold "
+                title={`${member.user.name} - ${member.role}`}
               >
                 <AvatarImage src={member.user.profilePicture} />
-                <AvatarFallback>{member.user.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="capitalize text-black">{member.user.name.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
 

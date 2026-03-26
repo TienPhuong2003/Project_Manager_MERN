@@ -59,11 +59,14 @@ const taskSchema =z.object({
     "Cancelled"
   ]),
   priority: z.enum(["Low","Medium","High"]),
-  dueDate: z.string().min(1, "due date is required"),
+  dueDate: z.string().min(1, "Due date is required"),
   assignees: z.array(z.string()).min(1,"At least one asignee is required")
 })
 
-
+const inviteMemberSchema = z.object({
+  email: z.string().email("Invalid email"),
+  role: z.enum(["admin", "member", "viewer"])
+})
 export {
   registerSchema,
   loginSchema,
@@ -72,5 +75,6 @@ export {
   emailSchema,
   workspaceSchema,
   projectSchema,
-  taskSchema
+  taskSchema,
+  inviteMemberSchema
 };

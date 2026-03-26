@@ -1,5 +1,11 @@
 import Project from "../models/project.js";
+import User from "../models/user.js";
+import WorkspaceInvite from "../models/workspace-invite.js";
 import Workspace from "../models/workspace.js";
+import jwt from "jsonwebtoken";
+import { sendEmail } from "../service/send-email.js";
+import { inviteEmailTemplate } from "../util/emailTemplate.js";
+import { recordActivity } from "../libs/index.js";
 
 const createWorkspace = async (req, res) => {
   try {
@@ -45,14 +51,13 @@ const getWorkspaces = async (req, res) => {
 const getWorkspaceDetails = async (req, res) => {
   try {
     const { workspaceId } = req.params;
-    const workspace = await Workspace.findOne({
+    const workspace = await Workspace.findById({
       _id: workspaceId,
-      "members.user": req.user._id,
     }).populate("members.user", "name email profilePicture");
     if (!workspace) {
       return res.status(404).json({ message: "Workspace not found" });
     }
-    res.status(200).json({ workspace });
+    res.status(200).json(workspace);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -265,16 +270,164 @@ const getWorkspaceStats = async (req, res) => {
       totalTaskInProgress,
     };
 
-    res
-      .status(200)
-      .json({
-        stats,
-        upcomingTasks,
-        taskTrendsData,
-        projectStatusData,
-        taskPriorityData,
-        workspaceProductivityData,
-        recentProjects: projects.slice(0, 5),
+    res.status(200).json({
+      stats,
+      upcomingTasks,
+      taskTrendsData,
+      projectStatusData,
+      taskPriorityData,
+      workspaceProductivityData,
+      recentProjects: projects.slice(0, 5),
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const acceptInviteToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const { user, workspaceId, role } = decoded;
+
+    const workspace = await Workspace.findById(workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({
+        message: "Workspace not found",
+      });
+    }
+
+    const isMember = workspace.members.some(
+      (member) => member.user.toString() === user.toString()
+    );
+
+    if (isMember) {
+      return res.status(400).json({
+        message: "User already a member of this workspace",
+      });
+    }
+
+    const inviteInfo = await WorkspaceInvite.findOne({
+      user: user,
+      workspaceId: workspaceId,
+    });
+
+    if (!inviteInfo) {
+      return res.status(404).json({
+        message: "Invitation not found",
+      });
+    }
+
+    if (inviteInfo.expiresAt < new Date()) {
+      return res.status(400).json({
+        message: "Invitation has expired",
+      });
+    }
+
+    workspace.members.push({
+      user: user,
+      role: role || "member",
+      joinedAt: new Date(),
+    });
+
+    await workspace.save();
+
+    await Promise.all([
+      WorkspaceInvite.deleteOne({ _id: inviteInfo._id }),
+      recordActivity(user, "joined_workspace", "Workspace", workspaceId, {
+        description: `Joined ${workspace.name} workspace`,
+      }),
+    ]);
+
+    res.status(200).json({
+      message: "Invitation accepted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+const inviteUserToWorkspace = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+    const { email, role } = req.body;
+
+    const workspace = await Workspace.findById(workspaceId);
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found" });
+    }
+
+    const userMemberInfo = workspace.members.find(
+      (member) => member.user.toString() === req.user._id.toString(),
+    );
+    if (!userMemberInfo || !["admin", "owner"].includes(userMemberInfo.role)) {
+      return res.status(403).json({
+        message: "You are not authorize to invite member to this workspace",
+      });
+    }
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    const isMember = workspace.members.some(
+      (member) => member.user.toString() === existingUser._id.toString(),
+    );
+    if (isMember) {
+      return res
+        .status(400)
+        .json({ message: "User already a member of this workspace" });
+    }
+    const isInvited = await WorkspaceInvite.findOne({
+      user: existingUser._id,
+      workspaceId: workspaceId,
+    });
+
+    if (isInvited && isInvited.expiresAt > new Date()) {
+      return res.status(400).json({
+        message: " User already invited to this workspace",
+      });
+    } else if (isInvited && isInvited.expiresAt < new Date()) {
+      await WorkspaceInvite.deleteOne({ _id: isInvited._id });
+    }
+    const inviteToken = jwt.sign(
+      {
+        user: existingUser._id,
+        workspaceId: workspaceId,
+        role: role || "member",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    await WorkspaceInvite.create({
+      user: existingUser._id,
+      workspaceId: workspaceId,
+      token: inviteToken,
+      role: role || "member",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    const invitationLink = `${process.env.FRONT_END_URL}/workspace-invite/${workspace._id}?tk=${inviteToken}`;
+    const emailResult = await sendEmail({
+      to: email,
+      subject: "You're invited to TaskHub",
+      html: inviteEmailTemplate({
+        name: existingUser.name,
+        workspaceName: workspace.name,
+        inviter: req.user.name,
+        link: invitationLink,
+      }),
+    });
+      return res.status(200).json({
+        message: "Invitation sent successfully",
       });
   } catch (error) {
     console.log(error);
@@ -284,10 +437,56 @@ const getWorkspaceStats = async (req, res) => {
   }
 };
 
+const acceptGenerateInvite = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+    const workspace = await Workspace.findById(workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({
+        message: "Workspace not found",
+      });
+    }
+
+    const isMember = workspace.members.some(
+      (member) => member.user.toString() === user.toString(),
+    );
+    if (isMember) {
+      return res.status(400).json({
+        message: "User already a member of this workspace",
+      });
+    }
+
+    workspace.members.push({
+      user: req.user._id,
+      role: "member",
+      joinedAt: new Date(),
+    });
+
+    await workspace.save();
+    await recordActivity(
+      req.user._id,
+      "joined_workspace",
+      workspaceId,
+      "Workspace",
+      { description: `Joined ${workspace.name} workspace` },
+    );
+
+    res.status(200).json({ message: "Invitation accepted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
 export {
   createWorkspace,
   getWorkspaces,
   getWorkspaceDetails,
   getWorkspaceProjects,
   getWorkspaceStats,
+  inviteUserToWorkspace,
+  acceptInviteToken,
+  acceptGenerateInvite,
 };

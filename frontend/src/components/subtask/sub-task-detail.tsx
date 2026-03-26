@@ -37,11 +37,11 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { subTaskColumns } from "./sub-task-columns";
-import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import {
   useAddSubTaskMutation,
   useCompleteSubTaskMutation,

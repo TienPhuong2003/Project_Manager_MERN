@@ -10,12 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { CalendarDays, Flag } from "lucide-react";
 import { format } from "date-fns";
-import { Avatar, AvatarFallback,AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { statusConfig, priorityConfig } from "@/lib";
 
 interface TaskCardProps {
   task: Task;
-  onClick?: () => void; 
+  onClick?: () => void;
 }
 
 export const TaskCard = ({ task, onClick }: TaskCardProps) => {
@@ -32,7 +32,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
         "group h-full cursor-pointer rounded-xl",
         "transition-all duration-300 ease-out",
         "hover:shadow-lg hover:-translate-y-1",
-        "border bg-background"
+        "border bg-background",
       )}
     >
       {/* ===== Header ===== */}
@@ -52,7 +52,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
             variant="outline"
             className={cn(
               "shrink-0 text-xs rounded-full px-2 py-0.5",
-              status.className
+              status.className,
             )}
           >
             {task.status}
@@ -69,7 +69,9 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
         {/* Priority */}
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Flag className={cn("h-4 w-4", priority.className)} />
-          <span className="capitalize">{task.priority}</span>
+          <span className={cn("capitalize", priority.className)}>
+            {task.priority}
+          </span>
         </div>
 
         {/* ===== Footer ===== */}
@@ -84,9 +86,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
                   title={user.name}
                 >
                   <AvatarImage src={user.profilePicture} />
-                  <AvatarFallback>
-                    {user.name.charAt(0)}
-                  </AvatarFallback>
+                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               ))}
 
